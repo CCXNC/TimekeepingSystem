@@ -4,18 +4,18 @@ class Csv_import_model extends CI_Model
 	public function select()
 	{
 		$query = $this->db->query('
-			SELECT * 
+			SELECT *
 			FROM temp_attendance
 			WHERE id IN (
 			    SELECT MAX(id)
 			    FROM temp_attendance
-			    WHERE status="out" 
+			    WHERE status="out"
 			    GROUP BY employee_number, DATE(date_time)
 			)
 			OR id IN (
-			    SELECT MIN(id) 
-			    FROM temp_attendance 
-			    WHERE status="in" 
+			    SELECT MIN(id)
+			    FROM temp_attendance
+			    WHERE status="in"
 			    GROUP BY employee_number, DATE(date_time)
 			) ORDER BY employee_number, DATE(date_time) ASC, status
 		')->result();
@@ -25,25 +25,25 @@ class Csv_import_model extends CI_Model
 	/*public function select()
 	{
 		$query = $this->db->query('
-			SELECT * 
+			SELECT *
 			FROM temp_attendance
 			WHERE id IN (
 			    SELECT MAX(id)
 			    FROM temp_attendance
-			    WHERE status="out" 
+			    WHERE status="out"
 			    GROUP BY employee_number, DATE(date_time)
 			)
 			OR id IN (
-			    SELECT MIN(id) 
-			    FROM temp_attendance 
-			    WHERE status="in" 
+			    SELECT MIN(id)
+			    FROM temp_attendance
+			    WHERE status="in"
 			    GROUP BY employee_number, DATE(date_time)
 			) ORDER BY employee_number, DATE(date_time) ASC, status
 		')->result();
 
 		return $query;
 	}*/
- 
+
 	public function insert($data)
 	{
 		$this->db->insert_batch('temp_attendance', $data);
@@ -92,12 +92,12 @@ class Csv_import_model extends CI_Model
 			for($k = 1; $k <= $number_dates; $k++)
 			{
 				//$trans .= '<br>----- ) ' . $cur_date;
-				
+
 				foreach($in_outs as $in_out)
 				{
 					//$trans .= '<br>---------- ) ' . $in_out;
 					//$data = '<br>--------------- ) ' . $emp->employee_number . ' ' . $emp->name . ' ' . '0000-00-00' . ' ' . '0000-00-00 00:00:00' . ' ' . 'NO IN/OUT';
-					
+
 					if($in_out == 'in')
 					{
 						//$data = '<br>--------------- ) ' . $emp->employee_number . ' ' . $emp->name . ' ' . '0000-00-00' . ' ' . '0000-00-00 00:00:00' . ' ' . $in_out;
@@ -118,94 +118,121 @@ class Csv_import_model extends CI_Model
 
 						$query = $this->db->get('tbl_in_attendance');
 
-						$in_id = $query->row()->id; 
+						$in_id = $query->row()->id;
 						'in_id'						=> $in_id, */
 
 						$data = array(
-							
+
 							'employee_number' => $emp->employee_number,
 							'name'            => $emp->name,
 							'dates'           => $cur_date,
 							'times'           => $cur_date . ' ' . '00:00:00',
 							'status'          => 'NO OUT',
 							'branch_id'       => $emp->branch_id
-						);  
+						);
 					}
 
 					$rec = FALSE;
 					$i = 0;
 
-					/*foreach($emp_nos as $emp_no)
+					foreach($emp_nos as $emp_no)
 					{
 						if($emp->employee_number == $emp_no && $cur_date == $date[$i] && $in_out == $status[$i])
 						{
 							//$data = '<br>--------------- ) ' . $emp_no . ' ' . $date[$i] . ' ' . $time[$i] . ' ' . $status[$i];
 							if($in_out == 'in')
 							{
-								$data = array(
-									'employee_number' => $emp_no,
-									'name'            => $name[$i],
-									'dates'           => $date[$i],
-									'times'           => $time[$i],
-									'status'          => $status[$i],
-									'branch_id'       => $emp->branch_id
-								);
+								$this->db->where('employee_number', $emp_no);
+								$this->db->where('dates', $date[$i]);
+								$this->db->where('status', $status[$i]);
 
-								$this->db->insert('tbl_in_attendance', $data) or die($this->db->_error_message());
+								$in_att = $this->db->get('tbl_in_attendance');
+
+								if($in_att->num_rows() == 0)
+								{
+									$data = array(
+										'employee_number' => $emp_no,
+										'name'            => $name[$i],
+										'dates'           => $date[$i],
+										'times'           => $time[$i],
+										'status'          => $status[$i],
+										'branch_id'       => $emp->branch_id
+									);
+
+									$this->db->insert('tbl_in_attendance', $data) or die($this->db->_error_message());
+								}
 							}
 							elseif($in_out == 'out')
 							{
-								$this->db->select('id');
-								$this->db->order_by('id', 'DESC');
-								
-								$query = $this->db->get('tbl_in_attendance');
-								
-								$in_id = $query->row()->id;
-								
+								$this->db->where('employee_number', $emp_no);
+								$this->db->where('dates', $date[$i]);
+								$this->db->where('status', $status[$i]);
 
-								$data = array(
-									'in_id'						=> $in_id, 
-									'employee_number' => $emp_no,
-									'name'            => $name[$i],
-									'dates'           => $date[$i],
-									'times'           => $time[$i],
-									'status'          => $status[$i], 
-									'branch_id'       => $emp->branch_id
-								);
+								$in_att = $this->db->get('tbl_out_attendance');
 
-							
-								$this->db->insert('tbl_out_attendance', $data) or die($this->db->_error_message());
+								if($in_att->num_rows() == 0)
+								{
+									$this->db->select('id');
+									$this->db->order_by('id', 'DESC');
+
+									$query = $this->db->get('tbl_in_attendance');
+
+									$in_id = $query->row()->id;
+
+
+									$data = array(
+										'in_id'						=> $in_id,
+										'employee_number' => $emp_no,
+										'name'            => $name[$i],
+										'dates'           => $date[$i],
+										'times'           => $time[$i],
+										'status'          => $status[$i],
+										'branch_id'       => $emp->branch_id
+									);
+
+									$this->db->insert('tbl_out_attendance', $data) or die($this->db->_error_message());
+								}
 							}
 
 							$rec = TRUE;
 							//$trans .= $data;
-							$j++; 
+							$j++;
 						}
 
 						$i++;
-					}*/
+					}
 
 					if($rec == FALSE)
 					{
 						if($in_out == 'in')
 						{
-							echo '<pre>';
-							print_r($data);
-							echo '</pre>';
-							//$trans .= $data;
-							$this->db->insert('tbl_in_attendance', $data) or die($this->db->_error_message());
+							$this->db->where('employee_number', $data['employee_number']);
+							$this->db->where('dates', $data['dates']);
+							$this->db->where('status', $data['status']);
+
+							$in_att = $this->db->get('tbl_in_attendance');
+
+							if($in_att->num_rows() == 0)
+							{
+								$this->db->insert('tbl_in_attendance', $data) or die($this->db->_error_message());
+							}
 						}
 						elseif($in_out == 'out')
 						{
-							echo '<pre>';
-							print_r($data);
-							echo '</pre>';
-							//$trans .= $data;
- 							$this->db->insert('tbl_out_attendance', $data) or die($this->db->_error_message());
+							$this->db->where('employee_number', $data['employee_number']);
+							$this->db->where('dates', $data['dates']);
+							$this->db->where('status', $data['status']);
+
+							$in_att = $this->db->get('tbl_out_attendance');
+
+							if($in_att->num_rows() == 0)
+							{
+								$this->db->insert('tbl_out_attendance', $data) or die($this->db->_error_message());
+							}
 						}
 
 						//trans .= $data;
-						$j++; 
+						$j++;
 					}
 				}
 				$conv_date = strtotime($start_date);
@@ -220,10 +247,10 @@ class Csv_import_model extends CI_Model
 		return $trans;
 		*/
 		$trans = $this->db->trans_complete();
-	
+
 		//print_r($trans);
-		
-	}	
+
+	}
 
 	public function get_set_dates()
 	{
