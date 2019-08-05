@@ -52,7 +52,7 @@
 		              <select class="form-control" name="HF">
 		              	<option value=" ">SELECT</option>
 		              	<option value="WD">WHOLEDAY</option>
-		              	<option value="HF">1/2</option>
+		              	<!-- <option value="HF">1/2</option> -->
 		              	<option value="HFAM">HALF DAY (AM)</option>
 		              	<option value="HFPM">HALF DAY (PM)</option>
 		              </select>	

@@ -114,10 +114,13 @@
                         <a href="<?php echo base_url(); ?>index.php/reports/index_ob"><i class="fa fa-briefcase fa-fw"></i>OB</a>
                     </li>
                      <li>
+                        <a href="<?php echo base_url(); ?>index.php/reports/index_undertime"><i class="fa fa-archive fa-fw"></i>Undertime</a>
+                    </li>
+                     <li>
                         <a href="<?php echo base_url(); ?>index.php/reports/index_ot"><i class="fa fa-archive fa-fw"></i>OverTime</a>
                     </li>
                      <li>
-                        <a href="<?php echo base_url(); ?>index.php/reports/index_total_compute"><i class="fa fa-archive fa-fw"></i>Report Generation</a>
+                        <a href="<?php echo base_url(); ?>index.php/reports/index_report_generation"><i class="fa fa-archive fa-fw"></i>Report Generation</a>
                     </li>
                 </ul>
             </li>

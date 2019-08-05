@@ -33,6 +33,7 @@ class Master extends CI_Controller {
 
 	 	$this->db->select("CONCAT(tbl_employees.last_name, ', ', tbl_employees.first_name , ' ', tbl_employees.middle_name) AS name,tbl_employees.id as id, tbl_employees.employee_number as employee_number,tbl_employees.last_name as last_name, branches.code as branch_code, branches.name as branch_name, company.name as company_name,");
 		$this->db->from('tbl_employees');
+		$this->db->where('is_active', '1');
 		$this->db->join('branches', 'tbl_employees.branch_id = branches.id');
 		$this->db->join('company', 'tbl_employees.company_id = company.id');
 
@@ -122,6 +123,13 @@ class Master extends CI_Controller {
 		if($this->master_model->delete_employee($id))
 		{
 			$this->session->set_flashdata('delete_emp', 'Employee Successfully Deleted!');
+			redirect('master/index_employee');
+		}
+	}
+	public function inactive_employee($id)
+	{
+		if($this->master_model->inactive_employee($id))
+		{
 			redirect('master/index_employee');
 		}
 	}

@@ -96,6 +96,18 @@ class Master_model extends CI_Model {
 		return $trans;
 	}
 
+	public function inactive_employee($id)
+	{
+		$data = array(
+			'is_active' => 0
+		);
+
+		$this->db->where('id', $id);
+		$trans = $this->db->update('tbl_employees', $data);
+
+		return $trans;
+	}
+
 	public function add_holidays()
 	{
 

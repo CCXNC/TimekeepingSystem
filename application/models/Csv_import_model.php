@@ -71,6 +71,7 @@ class Csv_import_model extends CI_Model
 		$cur_date = $start_date;
 		$this->db->select("employee_number, CONCAT(tbl_employees.last_name, ' ', tbl_employees.first_name , ' ', tbl_employees.middle_name) AS name, branch_id");
 		$this->db->where('tbl_employees.branch_id', $branch_id);
+		$this->db->where('tbl_employees.is_active', '1');
 		$this->db->order_by('employee_number','ASC');
 
 		$query = $this->db->get('tbl_employees');
@@ -113,16 +114,14 @@ class Csv_import_model extends CI_Model
 					elseif($in_out == 'out')
 					{
 						//$data = '<br>--------------- ) ' . $emp->employee_number . ' ' . $emp->name . ' ' . '0000-00-00' . ' ' . '0000-00-00 00:00:00' . ' ' . $in_out;
-						/*	$this->db->select('id');
+						$this->db->select('id');
 						$this->db->order_by('id', 'DESC');
 
 						$query = $this->db->get('tbl_in_attendance');
-
 						$in_id = $query->row()->id;
-						'in_id'						=> $in_id, */
 
 						$data = array(
-
+							'in_id'						=> $in_id,
 							'employee_number' => $emp->employee_number,
 							'name'            => $emp->name,
 							'dates'           => $cur_date,
@@ -246,8 +245,12 @@ class Csv_import_model extends CI_Model
 		$this->db->update('temp_attendance', $data);
 		return $trans;
 		*/
+		$this->db->where('is_transfer', 0);
+		$this->db->delete('temp_attendance');
+
 		$trans = $this->db->trans_complete();
 
+		return $trans;
 		//print_r($trans);
 
 	}

@@ -1,7 +1,6 @@
 <style type="text/css">
 	.container{
 		margin-top: 70px;
-		margin-left: 10px;
 		width: 99%;
 		color: black;
 	}
@@ -9,6 +8,9 @@
 		font-size: 24px;
 		font-family: century gothic;
 	} 
+	.table {
+		width: auto;
+	}
   .submit {
   	padding-top: 10px;
   	margin-left: 1020px;

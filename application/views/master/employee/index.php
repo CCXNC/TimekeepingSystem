@@ -32,7 +32,7 @@
 			      <div class="table-responsive">
 			          <table class="table table-bordered table-hover table-striped">
 			            <thead>
-			                <tr>
+			                <tr> 
 			                    <th>Employee No</th>
 			                    <th>Name</th>
 			                    <th>Company</th>
@@ -44,16 +44,17 @@
 			            <?php if(isset($employee)) : ?>
 			                <?php foreach($employee as $emp) : ?>
 			                <tr>
-		                    <td><?php echo $emp->employee_number; ?></td>
+		                    <td><?php echo $emp->employee_number; ?></td> 
 		                    <td><?php echo $emp->name; ?></td>
 		                    <td><?php echo $emp->company_name; ?></td>
 		                    <td><?php echo $emp->branch_name; ?></td>
 		                    <td>
 		                      <a class="btn btn-xs btn-info" href="<?php echo base_url(); ?>index.php/master/edit_employee/<?php echo $emp->id; ?>">Edit</a>
 		                      <a class="btn btn-danger btn-xs delete-btn" onclick="return confirm('Do you want to delete?');" href="<?php echo base_url(); ?>index.php/master/delete_employee/<?php echo $emp->id; ?>">Delete</a>
+		                      <a class="btn btn-primary btn-xs" onclick="return confirm('Do you want to inactive this employee?');" href="<?php echo base_url(); ?>index.php/master/inactive_employee/<?php echo $emp->id; ?>">Inactive</a>
 		                    </td>
 			                </tr>
-			                <?php endforeach; ?>
+			                <?php endforeach; ?> 
 			            <?php endif; ?>
 			    			</table>
 					        <div class="margin3">

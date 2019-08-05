@@ -56,6 +56,16 @@ class Reports extends CI_Controller {
 		$this->load->view('layouts/main', $data);
 	}
 
+	public function process_employee_time()
+	{
+		if($this->payroll_model->process_employee_timekeeping())
+		{
+			$this->session->set_flashdata('employee_process', 'PROCESS SUCCESSFULLY!');
+			redirect('reports/index_time_keeping');
+		}
+		
+	}
+
 	public function in_out_index()
 	{
 		if($this->input->server('REQUEST_METHOD') == 'POST')
@@ -235,7 +245,7 @@ class Reports extends CI_Controller {
 				'process_by'  	=> $this->session->userdata('username'),
 				'process_date'  => date('Y-m-d h:i:s'),
 				'status'        => 'PROCESSED'
-			);
+			); 
 
 			$this->db->where('id', $explode_data[0]);
 			$this->db->update('tbl_slvl', $data);
@@ -250,50 +260,58 @@ class Reports extends CI_Controller {
 			$this->db->where('employee_number', $explode_data[1]);
 			$this->db->update('tbl_remarks', $data);
 			
-			if($explode_data[5] == 'WD' && $explode_data[4] == 'AB' && ($data_w <= 4))
+
+			$this->db->where('employee_number', $explode_data[1]);
+			$this->db->where('date', $explode_data[3]);
+			$in_att = $this->db->get('tbl_cwwut');
+
+			if($in_att->num_rows() == 0)
 			{
-				$data = array(
-					'for_id'               => $explode_data[0], 
-					'employee_number'      => $explode_data[1],
-					'name'                 => $explode_data[2],
-					'date'								 => $explode_data[3],
-					'undertime_hr'         => 60,
-					'created_date'         => date('Y-m-d h:i:s'),
-					'created_by'           => $this->session->userdata('username'),
-					'status'               => 'PROCESSED'
-				);
-				$this->db->insert('tbl_cwwut', $data);
-			
-			}
-			elseif($explode_data[5] == 'HFAM' && $explode_data[4] == 'AB' && ($data_w <= 4))
-			{
-				$data = array(
-					'for_id'               => $explode_data[0], 
-					'employee_number'      => $explode_data[1],
-					'name'                 => $explode_data[2],
-					'date'								 => $explode_data[3],
-					'undertime_hr'         => 30,
-					'created_date'         => date('Y-m-d h:i:s'),
-					'created_by'           => $this->session->userdata('username'),
-					'status'               => 'PROCESSED'
-				);
-				$this->db->insert('tbl_cwwut', $data);
-			
-			}
-			elseif($explode_data[5] == 'HFPM' && $explode_data[4] == 'AB' && ($data_w <= 4))
-			{
-				$data = array(
-					'for_id'               => $explode_data[0], 
-					'employee_number'      => $explode_data[1],
-					'name'                 => $explode_data[2],
-					'date'								 => $explode_data[3],
-					'undertime_hr'         => 30,
-					'created_date'         => date('Y-m-d h:i:s'),
-					'created_by'           => $this->session->userdata('username'),
-					'status'               => 'PROCESSED'
-				);
-				$this->db->insert('tbl_cwwut', $data);
-			}
+				if($explode_data[5] == 'WD' && $explode_data[4] == 'AB' && ($data_w <= 4))
+				{
+					$data = array(
+						'for_id'               => $explode_data[0], 
+						'employee_number'      => $explode_data[1],
+						'name'                 => $explode_data[2],
+						'date'								 => $explode_data[3],
+						'undertime_hr'         => 60,
+						'created_date'         => date('Y-m-d h:i:s'),
+						'created_by'           => $this->session->userdata('username'),
+						'status'               => 'PROCESSED'
+					);
+					$this->db->insert('tbl_cwwut', $data);
+				
+				}
+				elseif($explode_data[5] == 'HFAM' && $explode_data[4] == 'AB' && ($data_w <= 4))
+				{
+					$data = array(
+						'for_id'               => $explode_data[0], 
+						'employee_number'      => $explode_data[1],
+						'name'                 => $explode_data[2],
+						'date'								 => $explode_data[3],
+						'undertime_hr'         => 30,
+						'created_date'         => date('Y-m-d h:i:s'),
+						'created_by'           => $this->session->userdata('username'),
+						'status'               => 'PROCESSED'
+					);
+					$this->db->insert('tbl_cwwut', $data);
+				
+				}
+				elseif($explode_data[5] == 'HFPM' && $explode_data[4] == 'AB' && ($data_w <= 4))
+				{
+					$data = array(
+						'for_id'               => $explode_data[0], 
+						'employee_number'      => $explode_data[1],
+						'name'                 => $explode_data[2],
+						'date'								 => $explode_data[3],
+						'undertime_hr'         => 30,
+						'created_date'         => date('Y-m-d h:i:s'),
+						'created_by'           => $this->session->userdata('username'),
+						'status'               => 'PROCESSED'
+					);
+					$this->db->insert('tbl_cwwut', $data);
+				}
+			}	
 		}
 	
 		redirect('reports/index_slvl');
@@ -497,7 +515,7 @@ class Reports extends CI_Controller {
 			$data['end_date'] = date('Y-m-d'); 
 		}
 		$data['main_content'] = 'reports/computetime/index';
-		$data['cut_off'] = $this->payroll_model->get_cut_off_date();
+		$data['cut_off'] = $this->payroll_model->get_cut_off_date(); 
 		$data['employees'] = $this->payroll_model->get_summary_time();
 		$data['holidays'] = $this->payroll_model->get_holiday($data['start_date'], $data['end_date']);
 		$data['dailyhrs'] = $this->payroll_model->get_total_dailyhrs($data['start_date'], $data['end_date']);
@@ -13849,4 +13867,68 @@ class Reports extends CI_Controller {
 		}
 	}
 
+	public function index_report_generation()
+	{
+		if($this->input->server('REQUEST_METHOD') == 'POST')
+		{
+			$data['start_date'] = $this->input->post('start_date');
+			$data['end_date'] = $this->input->post('end_date');
+		}
+		else 
+		{
+			$data['start_date'] = date('Y-m-d');
+			$data['end_date'] = date('Y-m-d'); 
+		}
+		$data['cut_off'] = $this->payroll_model->get_cut_off_date(); 
+		$data['tardiness'] = $this->report_generation_model->get_total_tardiness($data['start_date'], $data['end_date']);
+		$data['number_tardiness'] = $this->report_generation_model->get_number_tardiness($data['start_date'], $data['end_date']);
+		$data['employees'] = $this->payroll_model->get_summary_time();
+		$data['main_content'] = 'reports/reportgeneration/index';
+		$this->load->view('layouts/main', $data);
+	}
+
+	public function index_undertime()
+	{
+		if($this->input->server('REQUEST_METHOD') == 'POST')
+		{
+			$data['start_date'] = $this->input->post('start_date');
+			$data['end_date'] = $this->input->post('end_date');
+		}
+		else 
+		{
+			$data['start_date'] = date('Y-m-d');
+			$data['end_date'] = date('Y-m-d'); 
+		}
+		
+		$data['emps_under'] = $this->payroll_model->get_undertime($data['start_date'], $data['end_date']);
+		$data['cut_off'] = $this->payroll_model->get_cut_off_date(); 
+		$data['main_content'] = 'reports/undertime/index';
+
+		$this->load->view('layouts/main', $data);
+	}
+
+	public function add_undertime()
+	{
+		$this->form_validation->set_rules('name', 'Name', 'required|trim');
+		$this->form_validation->set_rules('date_ut', 'Date', 'required|trim');
+		$this->form_validation->set_rules('time_out', 'Time Out', 'required|trim');
+		$this->form_validation->set_rules('reason', 'Reason', 'required|trim');
+
+		if($this->form_validation->run() == FALSE)
+		{
+			$data['employees'] = $this->payroll_model->get_employees();
+			$data['main_content'] = 'reports/undertime/add';
+
+			$this->load->view('layouts/main', $data);
+		}
+		else
+		{
+			if($this->payroll_model->add_undertime())
+			{
+				$this->session->set_flashdata('add_msg', 'Undertime Successfully Added!');
+				redirect('reports/index_undertime');
+			}
+		}
+	
+	}
 }

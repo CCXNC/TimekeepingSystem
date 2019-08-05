@@ -126,7 +126,7 @@
 				                    			$total_ot_hrs_in_saturday = intval($total_out_daily - $total_in_daily );
 				                    			$hf_sat = $total_ot_hrs_in_saturday;
 				                    			//echo $hf_sat;
-
+				                    			
 				                    			$sat_in = $total_in_daily;
 					                    	}
 				                		}	

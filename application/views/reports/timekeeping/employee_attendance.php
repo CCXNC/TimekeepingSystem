@@ -5,7 +5,7 @@
 		color: black;
 	}
 	.is-true { 
-		background-color: #F9F7AD;
+		background-color: #F9F7AD; 
 	}
 </style>
 <div class="container">
@@ -19,9 +19,9 @@
 		    	<a href="<?php echo base_url(); ?>index.php/reports/index_slvl" class="btn btn-primary">SL | VL</a>
 		    	<a href="<?php echo base_url(); ?>index.php/reports/index_ot" class="btn btn-primary">OT</a>
 		    	<a href="<?php echo base_url() ?>index.php/reports/adj_employee_time" class="btn btn-primary">Adjustment</a>
+		    	<input class="btn btn-primary" id="processTime" type="submit" value="Process">
 		    	<br><br>
-		    	
-
+		    <form id="timeForm" method="post">	
 		    	<table class="table table-bordered table-hover table-striped cl">
             <thead>
               <tr> 
@@ -67,1308 +67,1367 @@
 									$total_sunday_date = 0; 
 								?>
 							<?php endif; ?>
+						    <?php if($employee_time) : ?>
+						 			<?php foreach($employee_time as $emp) : ?>
+			 							<?php //if($emp->in_status != 'NO IN' || $emp->out_status != 'NO OUT'): ?>
+			 								<input type="hidden" name="employee_number[]" value="<?php echo $emp->employee_number; ?>">
+					 						<?php
+												$in_office	= $fixed_daily_in; 
+												$out_office   = $fixed_daily_out;
+												$friday_out = $fixed_friday_out;
+												$night_diff = '22:00';
+												$in_daily = $emp->intime;
+												$out_daily = $emp->outtime;
+												$week_date = date('w', strtotime($emp->date)); // Convert in days . friday (5)
 
-					    <?php if($employee_time) : ?>
-					 			<?php foreach($employee_time as $emp) : ?>
-		 							<?php //if($emp->in_status != 'NO IN' || $emp->out_status != 'NO OUT'): ?>
-		 								
-				 						<?php
-											$in_office	= $fixed_daily_in; 
-											$out_office   = $fixed_daily_out;
-											$friday_out = $fixed_friday_out;
-											$night_diff = '22:00';
-											$in_daily = $emp->intime;
-											$out_daily = $emp->outtime;
-											$week_date = date('w', strtotime($emp->date)); // Convert in days . friday (5)
-
-											//CASUAL COMPUTATION 
-											$explode_casual_in = explode(":", $fixed_casual_in);
-											$explode_casual_out = explode(":", $fixed_casual_out);
-											$explode_friday_casual_out = explode(":", $fixed_casual_friday_out);
-											// IN CASUAL
-											$casual_in_hr = $explode_casual_in[0];
-											$casual_in_mins = $explode_casual_in[1];
-											$total_casual_in = intval(($casual_in_hr * 60) + $casual_in_mins);
-											//OUT CASUAL
-											$casual_out_hr = $explode_casual_out[0];
-											$casual_out_mins = $explode_casual_out[1];
-											$total_casual_out = intval(($casual_out_hr * 60) + $casual_out_mins);
-											//OUT FRIDAY CASUAL
-											$casual_friday_out_hr = $explode_friday_casual_out[0];
-											$casual_friday_out_mins = $explode_friday_casual_out[1];
-											$total_casual_friday_out = intval(($casual_friday_out_hr * 60) + $casual_friday_out_mins);
-
-
-											// EXPLODE DATE IN TIME IN / TIME OUT
-											$explode_in_date_daily = explode(" ", $in_daily);
-											$explode_out_date_daily = explode(" ", $out_daily);
-											$date_date_in = $explode_in_date_daily[0];
-											$date_date_out = $explode_out_date_daily[0];
-											$date_in = $explode_in_date_daily[1];
-											$date_out = $explode_out_date_daily[1];
-
-											//NIGHT DIFF
-											$explode_night_diff = explode(":", $night_diff);
-											$night_diff_hr = $explode_night_diff[0]; 
-											$night_diff_min = $explode_night_diff[1]; 
-											$total_night_diff = intval($night_diff_hr*60) + $night_diff_min; // total night diff
-
-											// EXPLODE IN AND OUT 
-											$explode_in_office = explode(":", $in_office);
-											$explode_out_office = explode(":", $out_office);
-											$explode_friday_out_office = explode(":", $friday_out);
-											$explode_in_daily = explode(":", $date_in);
-											$explode_out_daily = explode(":", $date_out);
-											$time_in_hr_daily = $explode_in_daily[0];
-											$time_in_min_daily = $explode_in_daily[1];
-											$time_out_hr_daily = $explode_out_daily[0];
-											$time_out_min_daily = $explode_out_daily[1];
-											$time_in_hr = $explode_in_office[0];
-											$time_in_min = $explode_in_office[1];
-											$time_out_hr = $explode_out_office[0];
-											$time_out_min = $explode_out_office[1];
-											$time_friday_out_hr = $explode_friday_out_office[0];
-											$time_friday_out_min = $explode_friday_out_office[1];
+												//CASUAL COMPUTATION 
+												$explode_casual_in = explode(":", $fixed_casual_in);
+												$explode_casual_out = explode(":", $fixed_casual_out);
+												$explode_friday_casual_out = explode(":", $fixed_casual_friday_out);
+												// IN CASUAL
+												$casual_in_hr = $explode_casual_in[0];
+												$casual_in_mins = $explode_casual_in[1];
+												$total_casual_in = intval(($casual_in_hr * 60) + $casual_in_mins);
+												//OUT CASUAL
+												$casual_out_hr = $explode_casual_out[0];
+												$casual_out_mins = $explode_casual_out[1];
+												$total_casual_out = intval(($casual_out_hr * 60) + $casual_out_mins);
+												//OUT FRIDAY CASUAL
+												$casual_friday_out_hr = $explode_friday_casual_out[0];
+												$casual_friday_out_mins = $explode_friday_casual_out[1];
+												$total_casual_friday_out = intval(($casual_friday_out_hr * 60) + $casual_friday_out_mins);
+												$total_casual_in_min_grace = intval($casual_in_hr*60) + $casual_in_mins + 15;
 
 
-											// Convert IN AND OUT
-											$total_in_min = intval($time_in_hr*60) + $time_in_min; // DEFAULT IN
-											$total_in_min_grace = intval($time_in_hr*60) + $time_in_min + 15; // DEFAULT IN WITH GRACE PERIOD!
-											$total_out_min = intval($time_out_hr*60) + $time_out_min; // DEFAULT OUT
-											$total_friday_out_min = intval($time_friday_out_hr*60) + $time_friday_out_min; // DEFAULT OUT IN FRIDAY
-											$total_in_daily = intval($time_in_hr_daily*60) + $time_in_min_daily; // EMPLOYEE IN
-											$total_out_daily = intval($time_out_hr_daily*60) + $time_out_min_daily; // EMPLOYEE OUT
+												// EXPLODE DATE IN TIME IN / TIME OUT
+												$explode_in_date_daily = explode(" ", $in_daily);
+												$explode_out_date_daily = explode(" ", $out_daily);
+												$date_date_in = $explode_in_date_daily[0];
+												$date_date_out = $explode_out_date_daily[0];
+												$date_in = $explode_in_date_daily[1];
+												$date_out = $explode_out_date_daily[1];
 
-											//COMPUTATION IN OFFICE IN AND OUT
-											$total_min_diff = intval($total_out_min - $total_in_min);
-											$hr_diff = intval($total_min_diff/60);
-											$min_diff = intval($total_min_diff%60);
-											
-
-											// IN AND OUT OF EMPLOYEE
-											$in = strtotime($emp->intime);
-											$out   = strtotime($emp->outtime);
-											$diff  = $out - $in;
-
-											//CONVERT OF IN AND OUT
-											$hours = floor($diff / (60 * 60));
-											$minutes = $diff - $hours * (60 * 60); 
-											$total_minutes = floor( $minutes / 60 );
-											
-											// COMPUTATION OF IN AND OUT
-											$total_number_of_hours = $hours.".".$total_minutes; //
-											$total_office_hours = $hr_diff.".".$min_diff; // 9:30 Fixed
-											$number_hr_daily = $total_number_of_hours; // TOTAL HOURS DAILY!
-										?>
-										<tr>
-											<!-- DAYS -->	
-		    	 							<td>
-													<?php 
-														$data_w = $emp->date;
-														echo date('D', strtotime($emp->date));
-													?>
-												</td>
-		    	 						<!-- DATES -->	
-			    	 					<td>
-			    	 						<?php 
-			    	 							echo $emp->date;
-			    	 							$con_dates = date('w', strtotime($emp->date));
-			    	 							if($con_dates == '0')
-			    	 							{
-			    	 								$sunday_date =  1;
-			    	 								$total_sunday_date += $sunday_date;
-			    	 							}
-			    	 						?>
-			    	 					</td>
-			    	 					<!-- time in -->
-			    	 					<?php $start_halfday = 660; $end_halfday = 750; ?>
-			    	 					<td <?php echo $total_in_daily >=  $start_halfday && $week_date != 5 && $holiday_dates != $date_date_in ? 'style="background-color:#e74c3c"' : $total_in_daily ==  0 ? 'style="background-color:#e74c3c"' : $total_in_daily >=  $start_halfday && $week_date == 5 && $holiday_dates != $date_date_in ? 'style="background-color:#e74c3c"' : ' '; ?> >
-												<?php 
-													$in = explode(" ",$emp->intime);
-													echo $in[1];
-												?>
-												<input type="hidden" name="intime[]" value="<?php echo $emp->intime; ?>">
-											</td>
-											<!-- time out -->
-											<td <?php echo $total_out_daily <  $total_out_min && $week_date != 5 && $week_date != 6 && $week_date != 0 && $holiday_dates != $date_date_in ? 'style="background-color:#e74c3c"' : $total_out_daily ==  0 ? 'style="background-color:#ccc"' : $total_out_daily < $total_friday_out_min && $week_date == 5 && $holiday_dates != $date_date_in ? 'style="background-color:#e74c3c"'  : ' '; ?> >
-												<?php 
-													$out = explode(" ",$emp->outtime);
-													echo $out[1];
-												?>	
-												<input type="hidden" name="outtime[]" value="<?php echo $emp->outtime; ?>">
-											</td>
-
-											<td>	
-											<?php 
-											// DAILY HOURS
-
-											if($week_date >= 1 && $week_date <= 4)
-											{
-												if($date_date_in == $date_date_out && $total_in_daily == 0 && $total_out_daily == 0)
-												{
-													$dly_hrs = 0;
-													echo ' ';
-												}
-												elseif($total_in_min_grace >= $total_in_daily && $total_out_daily >= $total_out_min)
-												{
-													$total_min_diff = intval($total_out_min - $total_in_min - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}			
-												elseif($total_in_daily > $total_in_min_grace && $total_out_daily < $total_out_min)
-												{
-													$total_min_diff = intval($total_out_daily - $total_in_daily - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}
-												elseif($total_in_daily > $total_in_min_grace )
-												{
-													$total_min_diff = intval($total_out_min - $total_in_daily - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}
-												elseif($total_out_daily < $total_out_min)
-												{
-													$total_min_diff = intval($total_out_daily - $total_in_min - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}
-												elseif($total_in_daily >= $total_in_min_grace)
-												{
-													$total_min_diff = intval($total_out_min - $total_in_daily - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$min_diff."";
-													$dly_hrs = $total_min_diff;
-												}
-												elseif($total_in_daily <= $total_in_min_grace)
-												{
-													$total_min_diff = intval($total_out_min - $total_in_min - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}
-											}
-											elseif($week_date == 5)
-											{
-												if($date_date_in == $date_date_out && $total_in_daily == 0 && $total_out_daily == 0)
-												{
-													$dly_hrs = 0;
-													echo ' ';
-												}
-												elseif($date_date_in == $date_date_out && $total_in_min_grace >= $total_in_daily && $total_out_daily >= $total_friday_out_min)
-												{
-													$total_min_diff = intval($total_friday_out_min - $total_in_min - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-
-												}	
-												elseif($date_date_in == $date_date_out && $total_in_daily > $total_in_min_grace && $total_out_daily < $total_friday_out_min)
-												{
-													$total_min_diff = intval($total_out_daily - $total_in_daily - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}
-												elseif($date_date_in == $date_date_out && $total_in_daily > $total_in_min_grace )
-												{
-													$total_min_diff = intval($total_friday_out_min - $total_in_daily - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}
-												elseif($date_date_in == $date_date_out && $total_out_daily < $total_friday_out_min)
-												{
-													$total_min_diff = intval($total_out_daily - $total_in_min - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}
-												elseif($date_date_in != $date_date_out && $total_in_daily >= $total_in_min_grace)
-												{
-													$total_min_diff = intval($total_friday_out_min - $total_in_daily - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}
-												elseif($date_date_in != $date_date_out || $total_in_daily <= $total_in_min_grace)
-												{
-													$total_min_diff = intval($total_friday_out_min - $total_in_min - 60);
-													$hr_diff = intval($total_min_diff/60);
-													$min_diff = intval($total_min_diff%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$dly_hrs = $total_min_diff;
-												}
-											}
-											elseif($week_date == 6)
-											{
-												echo 'SATURDAY';
-												$dly_hrs = 540;
-											}
-											elseif($week_date == 0)
-											{
-												echo 'SUNDAY';
-												$dly_hrs = 0;
-											}
-											else
-											{
-												echo 0;
-												$dly_hrs = 0;
-											}
-
-											if($dly_hrs != 0)
-											{
-												$total_daily_hours += count($dly_hrs);
-											}
-
-											?>
-											
-											<input type="hidden" name="daily_hrs[]" value="<?php echo $dly_hrs; ?>">
-										</td>
-
-										<?php
-												//COMPUTATION OF HOURS LATE !
-												$halfday = 780;
-												if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$hr_lte = 0;
-														//echo ' ';
-													}
-													elseif($halfday <= $total_in_daily)
-													{
-														$late_hr = intval($total_in_daily - $halfday);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_of_late = $hr_diff.".".$min_diff;
-														$hr_lte = $late_hr;
-													}
-													elseif($start_halfday <= $total_in_daily)
-													{
-														//echo 0;
-														$hr_lte = 0;
-													}
-													elseif($holiday_dates == $date_date_in)
-													{
-														$hr_lte = 0;
-														//echo 0 ;
-													}
-													else
-													{
-														if($total_in_daily > $total_in_min_grace && $emp->employee_number != 10195)
-														{
-															$late_hr = intval($total_in_daily - $total_in_min);
-															$hr_diff = intval($late_hr/60);
-															$min_diff = intval($late_hr%60);
-															$hrs1 = sprintf("%02d", $min_diff);
-															//echo $hr_diff.".".$hrs1."";
-															$number_of_late = $hr_diff.".".$min_diff;
-															$hr_lte = $late_hr;
-														}
-														elseif($total_in_daily > $total_casual_in && $emp->employee_number == 10195)
-														{
-															$late_hr = intval($total_in_daily - $total_casual_in);
-															$hr_diff = intval($late_hr/60);
-															$min_diff = intval($late_hr%60);
-															$hrs1 = sprintf("%02d", $min_diff);
-															//echo $hr_diff.".".$hrs1."";
-															$number_of_late = $hr_diff.".".$min_diff;
-															$hr_lte = $late_hr;
-														}
-														else
-														{
-															//echo 0;
-															$hr_lte = 0;
-														}
-													}
-												}	
-												elseif($week_date == 5)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$hr_lte = 0;
-														//echo ' ';
-													}
-													elseif($halfday <= $total_in_daily)
-													{
-														$late_hr = intval($total_in_daily - $halfday);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_of_late = $hr_diff.".".$min_diff;
-														$hr_lte = $late_hr;
-													}
-													elseif($start_halfday <= $total_in_daily)
-													{
-														//echo 0;
-														$hr_lte = 0;
-													}
-													elseif($holiday_dates == $date_date_in)
-													{
-														$hr_lte = 0;
-														//echo 0 ;
-													}
-													else
-													{
-														if($total_in_daily > $total_in_min_grace && $emp->employee_number != 10195)
-														{
-															$late_hr = intval($total_in_daily - $total_in_min);
-															$hr_diff = intval($late_hr/60);
-															$min_diff = intval($late_hr%60);
-															$hrs1 = sprintf("%02d", $min_diff);
-															//echo $hr_diff.".".$hrs1."";
-															$number_of_late = $hr_diff.".".$min_diff;
-															$hr_lte = $late_hr;
-														}
-														elseif($total_in_daily > $total_casual_in && $emp->employee_number == 10195)
-														{
-															$late_hr = intval($total_in_daily - $total_casual_in);
-															$hr_diff = intval($late_hr/60);
-															$min_diff = intval($late_hr%60);
-															$hrs1 = sprintf("%02d", $min_diff);
-															//echo $hr_diff.".".$hrs1."";
-															$number_of_late = $hr_diff.".".$min_diff;
-															$hr_lte = $late_hr;
-														}
-														else
-														{
-															//echo 0;
-															$hr_lte = 0;
-														}
-													}
-													
-												}
-												else
-												{
-													//echo ' ';
-													$hr_lte = 0;
-												}
-											?>
-
-										<td <?php echo $hr_lte != 0 ? 'style="background-color:#e74c3c"' : ''; ?>>
-											<?php
-												//COMPUTATION OF HOURS LATE !
-												$halfday = 780;
-												if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$hr_lte = 0;
-														echo ' ';
-													}
-													elseif($halfday <= $total_in_daily)
-													{
-														$late_hr = intval($total_in_daily - $halfday);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_of_late = $hr_diff.".".$min_diff;
-														$hr_lte = $late_hr;
-													}
-													elseif($start_halfday <= $total_in_daily)
-													{
-														echo 0;
-														$hr_lte = 0;
-													}
-													elseif($holiday_dates == $date_date_in)
-													{
-														$hr_lte = 0;
-														echo 0 ;
-													}
-													else
-													{
-														if($total_in_daily > $total_in_min_grace && $emp->employee_number != 10195)
-														{
-															$late_hr = intval($total_in_daily - $total_in_min);
-															$hr_diff = intval($late_hr/60);
-															$min_diff = intval($late_hr%60);
-															$hrs1 = sprintf("%02d", $min_diff);
-															echo $hr_diff.".".$hrs1."";
-															$number_of_late = $hr_diff.".".$min_diff;
-															$hr_lte = $late_hr;
-														}
-														elseif($total_in_daily > $total_casual_in && $emp->employee_number == 10195)
-														{
-															$late_hr = intval($total_in_daily - $total_casual_in);
-															$hr_diff = intval($late_hr/60);
-															$min_diff = intval($late_hr%60);
-															$hrs1 = sprintf("%02d", $min_diff);
-															echo $hr_diff.".".$hrs1."";
-															$number_of_late = $hr_diff.".".$min_diff;
-															$hr_lte = $late_hr;
-														}
-														else
-														{
-															echo 0;
-															$hr_lte = 0;
-														}
-													}
-												}	
-												elseif($week_date == 5)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$hr_lte = 0;
-														echo ' ';
-													}
-													elseif($halfday <= $total_in_daily)
-													{
-														$late_hr = intval($total_in_daily - $halfday);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_of_late = $hr_diff.".".$min_diff;
-														$hr_lte = $late_hr;
-													}
-													elseif($start_halfday <= $total_in_daily)
-													{
-														echo 0;
-														$hr_lte = 0;
-													}
-													elseif($holiday_dates == $date_date_in)
-													{
-														$hr_lte = 0;
-														echo 0 ;
-													}
-													else
-													{
-														if($total_in_daily > $total_in_min_grace && $emp->employee_number != 10195)
-														{
-															$late_hr = intval($total_in_daily - $total_in_min);
-															$hr_diff = intval($late_hr/60);
-															$min_diff = intval($late_hr%60);
-															$hrs1 = sprintf("%02d", $min_diff);
-															echo $hr_diff.".".$hrs1."";
-															$number_of_late = $hr_diff.".".$min_diff;
-															$hr_lte = $late_hr;
-														}
-														elseif($total_in_daily > $total_casual_in && $emp->employee_number == 10195)
-														{
-															$late_hr = intval($total_in_daily - $total_casual_in);
-															$hr_diff = intval($late_hr/60);
-															$min_diff = intval($late_hr%60);
-															$hrs1 = sprintf("%02d", $min_diff);
-															echo $hr_diff.".".$hrs1."";
-															$number_of_late = $hr_diff.".".$min_diff;
-															$hr_lte = $late_hr;
-														}
-														else
-														{
-															echo 0;
-															$hr_lte = 0;
-														}
-													}
-													
-												}
-												else
-												{
-													echo ' ';
-													$hr_lte = 0;
-												}
-												$total_hr_lte += $hr_lte;
-											?>
-											<input type="hidden" name="hours_late[]" value="<?php echo $hr_lte; ?>">
-										</td>
-
-										<?php
-											//COMPUTATION OF UNDERTIME ! 
-											$halfday_in = 780;
-											if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
-											{
-												if($total_in_daily == 0 && $total_out_daily == 0)
-												{
-													$ud_time = 0;
-													//echo ' ';
-												}
-												elseif($total_out_min <= $total_out_daily)
-												{
-													//echo 0;
-													$ud_time = 0;
-												}
-												elseif($holiday_dates == $date_date_in)
-												{
-													//echo 0 ;
-													$ud_time = 0;
-												}
-												else
-												{
-													if($total_out_daily > $halfday_in && $emp->employee_number != 10195)
-													{
-														$undertime_hr = intval($total_out_min - $total_out_daily);
-														$hr_diff = intval($undertime_hr/60);
-														$min_diff = intval($undertime_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_of_undertime = $hr_diff.".".$min_diff;
-														$ud_time = $undertime_hr;
-													}
-													elseif($total_out_daily > $halfday_in && $emp->employee_number == 10195)
-													{
-														$undertime_hr = intval($total_casual_out - $total_out_daily);
-														$hr_diff = intval($undertime_hr/60);
-														$min_diff = intval($undertime_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_of_undertime = $hr_diff.".".$min_diff;
-														$ud_time = $undertime_hr;
-													}
-												}
-											}
-											elseif($week_date == 5)
-											{
-												if($total_in_daily == 0 && $total_out_daily == 0)
-												{
-													$ud_time = 0;
-													//echo ' ';
-												}
-												elseif($total_friday_out_min <= $total_out_daily)
-												{
-													//echo 0;
-													$ud_time = 0;
-												}
-												elseif($holiday_dates == $date_date_in)
-												{
-													//echo 0 ; 
-													$ud_time = 0;
-												}
-												else
-												{
-													if($halfday_in < $total_out_daily && $emp->employee_number != 10195)
-													{
-														$undertime_hr = intval($total_friday_out_min - $total_out_daily);
-														$hr_diff = intval($undertime_hr/60);
-														$min_diff = intval($undertime_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_of_undertime = $hr_diff.".".$min_diff; 
-														$ud_time = $undertime_hr;
-													}
-													elseif($total_out_daily > $halfday_in && $emp->employee_number == 10195)
-													{
-														$undertime_hr = intval($total_casual_friday_out - $total_out_daily);
-														$hr_diff = intval($undertime_hr/60);
-														$min_diff = intval($undertime_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_of_undertime = $hr_diff.".".$min_diff;
-														$ud_time = $undertime_hr;
-													}
-												}
-											}
-											else
-											{
-												//echo ' ';
-												$ud_time = 0;
-											}
-												 
-											?>
-
-										<td <?php echo $ud_time != 0 ? 'style="background-color:#e74c3c"' : ''; ?>
-										>
-											<?php
-											//COMPUTATION OF UNDERTIME ! 
-											$halfday_in = 780; 
-											if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
-											{
-												if($total_in_daily == 0 && $total_out_daily == 0)
-												{
-													$ud_time = 0;
-													echo ' ';
-												}
-												elseif($total_out_min <= $total_out_daily)
-												{
-													echo 0;
-													$ud_time = 0;
-												}
-												elseif($holiday_dates == $date_date_in)
-												{
-													echo 0 ;
-													$ud_time = 0;
-												}
-												else
-												{
-													if($total_out_daily > $halfday_in && $emp->employee_number != 10195)
-													{
-														$undertime_hr = intval($total_out_min - $total_out_daily);
-														$hr_diff = intval($undertime_hr/60);
-														$min_diff = intval($undertime_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_of_undertime = $hr_diff.".".$min_diff;
-														$ud_time = $undertime_hr;
-													}
-													elseif($total_out_daily > $halfday_in && $emp->employee_number == 10195)
-													{
-														$undertime_hr = intval($total_casual_out - $total_out_daily);
-														$hr_diff = intval($undertime_hr/60);
-														$min_diff = intval($undertime_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_of_undertime = $hr_diff.".".$min_diff;
-														$ud_time = $undertime_hr;
-													}
-												}
-											}
-											elseif($week_date == 5)
-											{
-												if($total_in_daily == 0 && $total_out_daily == 0)
-												{
-													$ud_time = 0;
-													echo ' ';
-												}
-												elseif($total_friday_out_min <= $total_out_daily)
-												{
-													echo 0;
-													$ud_time = 0;
-												}
-												elseif($holiday_dates == $date_date_in)
-												{
-													echo 0 ; 
-													$ud_time = 0;
-												}
-												else
-												{
-													if($halfday_in < $total_out_daily && $emp->employee_number != 10195)
-													{
-														$undertime_hr = intval($total_friday_out_min - $total_out_daily);
-														$hr_diff = intval($undertime_hr/60);
-														$min_diff = intval($undertime_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_of_undertime = $hr_diff.".".$min_diff; 
-														$ud_time = $undertime_hr;
-													}
-													elseif($total_out_daily > $halfday_in && $emp->employee_number == 10195)
-													{
-														$undertime_hr = intval($total_casual_friday_out - $total_out_daily);
-														$hr_diff = intval($undertime_hr/60);
-														$min_diff = intval($undertime_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_of_undertime = $hr_diff.".".$min_diff;
-														$ud_time = $undertime_hr;
-													}
-												}
-											}
-											else
-											{
-												echo ' ';
-												$ud_time = 0;
-											}
-											 $total_undrtme += $ud_time; 
-												 
-											?>
-											<input type="hidden" name="undertime[]" value="<?php echo $ud_time; ?>">
-										</td>
-
-										<?php 
-											if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
-											{
-												if($total_in_daily == 0 && $total_out_daily == 0)
-												{
-													$ot_mrning = 0;
-													//echo ' ';
-												}
-												elseif($total_in_daily <= $total_in_min)
-												{
-													$ot_hr_morning = intval($total_in_min - $total_in_daily);
-													$hr_diff = intval($ot_hr_morning/60);
-													$min_diff = intval($ot_hr_morning%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													//echo $hr_diff.".".$hrs1."";
-													$number_ot_morning = $hr_diff.".".$min_diff;
-													$ot_mrning = $ot_hr_morning;
-												} 
-												else
-												{
-													//echo 0;
-													$ot_hr_morning = 0;
-													$ot_mrning = 0;
-												}
-											}
-											elseif($week_date == 5)
-											{
-												if($total_in_daily == 0 && $total_out_daily == 0)
-												{
-													$ot_mrning = 0;
-													//echo ' ';
-												}
-												elseif($total_in_daily <= $total_in_min)
-												{
-													$ot_hr_morning = intval($total_in_min - $total_in_daily);
-													$hr_diff = intval($ot_hr_morning/60);
-													$min_diff = intval($ot_hr_morning%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													//echo $hr_diff.".".$hrs1."";
-													$number_ot_morning = $hr_diff.".".$min_diff;
-													$ot_mrning = $ot_hr_morning;
-												} 
-												else
-												{
-													//echo 0;
-													$ot_hr_morning = 0;
-													$ot_mrning = 0;
-												}
-											}
-											else
-											{
-												//echo ' ';
-												$ot_hr_morning = 0;
-												$ot_mrning = 0;
-											}
-										?>
-
-										<td <?php echo $ot_mrning != 0 && $ot_mrning > 60 ? 'style="background-color:#87CEFA"' : ''; ?>
-										>
-											<?php
-												//COMPUTATION OF OT MORNING !
-												if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$ot_mrning = 0;
-														echo ' ';
-													}
-													elseif($total_in_daily <= $total_in_min)
-													{
-														$ot_hr_morning = intval($total_in_min - $total_in_daily);
-														$hr_diff = intval($ot_hr_morning/60);
-														$min_diff = intval($ot_hr_morning%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_ot_morning = $hr_diff.".".$min_diff;
-														$ot_mrning = $ot_hr_morning;
-													} 
-													else
-													{
-														echo 0;
-														$ot_hr_morning = 0;
-														$ot_mrning = 0;
-													}
-												}
-												elseif($week_date == 5)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$ot_mrning = 0;
-														echo ' ';
-													}
-													elseif($total_in_daily <= $total_in_min)
-													{
-														$ot_hr_morning = intval($total_in_min - $total_in_daily);
-														$hr_diff = intval($ot_hr_morning/60);
-														$min_diff = intval($ot_hr_morning%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_ot_morning = $hr_diff.".".$min_diff;
-														$ot_mrning = $ot_hr_morning;
-													} 
-													else
-													{
-														echo 0;
-														$ot_hr_morning = 0;
-														$ot_mrning = 0;
-													}
-												}
-												else
-												{
-													echo ' ';
-													$ot_hr_morning = 0;
-													$ot_mrning = 0;
-												}
-												$total_ot_mnng += $ot_mrning;
-											?>
-											<input type="hidden" name="ot_morning[]" value="<?php echo $ot_mrning; ?>">
-										</td>
-
-										<?php
-											if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$ot_nght = 0;
-														//echo ' ';
-													}
-													elseif($total_out_daily >= $total_out_min && $emp->employee_number != 10195) 
-													{
-														$late_hr = intval($total_out_daily - $total_out_min);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_ot_night = $hr_diff.".".$min_diff;
-														$ot_nght = $late_hr;
-
-													}	
-													elseif($total_out_daily >= $total_casual_out && $emp->employee_number == 10195) 
-													{
-														$late_hr = intval($total_out_daily - $total_casual_out);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_ot_night = $hr_diff.".".$min_diff;
-														$ot_nght = $late_hr;
-
-													}	
-													elseif($holiday_dates == $date_date_in)
-													{
-														$ot_hr = intval($total_out_daily - $total_in_daily);
-														$hr_diff = intval($ot_hr/60);
-														$min_diff = intval($ot_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$ot_nght = $ot_hr;
-													}
-													elseif($date_date_in != $date_date_out && $ot_hr_morning != 0)
-													{
-														$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
-														$explode_total_hrs = explode(".", $number_hr_daily);
-														$total_hrs = $explode_total_hrs[0];
-														$total_mins = $explode_total_hrs[1];
-														$total_hr = $explode_ot_morning_hr_min[0];
-														$total_min = $explode_ot_morning_hr_min[1];
-														
-														$total_in_and_out = $total_out_min - $total_in_min ;
-														$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
-														$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
-
-														$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
-														$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
-
-														$hr_ot_diff = intval($total_ot_hrs/60);
-														$min_ot_diff = intval($total_ot_hrs%60);
-														$hrs1 = sprintf("%02d", $min_ot_diff);
-														$total_ot_night = $hr_ot_diff.".".$hrs1."";
-														//echo $total_ot_night;
-														$ot_nght = $total_ot_hrs;
-													}
-													else
-													{
-														//echo 0 ;
-														$ot_nght = 0;
-													}
-												}	
-												elseif($week_date == 5)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$ot_nght = 0;
-														//echo ' ';
-													}
-													elseif($total_out_daily >= $total_friday_out_min && $emp->employee_number != 10195) 
-													{
-														$late_hr = intval($total_out_daily - $total_friday_out_min);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_ot_night = $hr_diff.".".$min_diff;
-														$ot_nght = $late_hr;
-													}	
-													elseif($total_out_daily >= $total_casual_friday_out && $emp->employee_number == 10195) 
-													{
-														$late_hr = intval($total_out_daily - $total_casual_friday_out);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														//echo $hr_diff.".".$hrs1."";
-														$number_ot_night = $hr_diff.".".$min_diff;
-														$ot_nght = $late_hr;
-													}	
-													elseif($date_date_in != $date_date_out && $ot_hr_morning == 0)
-													{
-														$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
-														$explode_total_hrs = explode(".", $number_hr_daily);
-														$total_hrs = $explode_total_hrs[0];
-														$total_mins = $explode_total_hrs[1];
-														$total_hr = $explode_ot_morning_hr_min[0];
-														$total_min = $explode_ot_morning_hr_min[1];
-														
-														$total_in_and_out = $total_friday_out_min - $total_in_min ;
-														$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
-														$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
-
-														$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
-														$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
-
-														$hr_ot_diff = intval($total_ot_hrs/60);
-														$min_ot_diff = intval($total_ot_hrs%60);
-														$hrs1 = sprintf("%02d", $min_ot_diff);
-														$total_ot_night = $hr_ot_diff.".".$hrs1."";
-														//echo $total_ot_night;
-														$ot_nght = $total_ot_hrs;
-													}
-														elseif($date_date_in != $date_date_out && $ot_hr_morning != 0)
-													{
-														$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
-														$explode_total_hrs = explode(".", $number_hr_daily);
-														$total_hrs = $explode_total_hrs[0];
-														$total_mins = $explode_total_hrs[1];
-														$total_hr = $explode_ot_morning_hr_min[0];
-														$total_min = $explode_ot_morning_hr_min[1];
-														
-														$total_in_and_out = $total_friday_out_min - $total_in_min ;
-														$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
-														$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
-
-														$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
-														$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
-
-														$hr_ot_diff = intval($total_ot_hrs/60);
-														$min_ot_diff = intval($total_ot_hrs%60);
-														$hrs1 = sprintf("%02d", $min_ot_diff);
-														$total_ot_night = $hr_ot_diff.".".$hrs1."";
-														//echo $total_ot_night;
-														$ot_nght = $total_ot_hrs;
-													}
-													else
-													{
-														//echo 0 ;
-														$ot_nght = 0;
-													}
-												}
-												elseif($week_date == 6)
-												{
-													$ot_hr = intval($total_out_daily - $total_in_daily);
-													$hr_diff = intval($ot_hr/60);
-													$min_diff = intval($ot_hr%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													//echo $hr_diff.".".$hrs1."";
-													$ot_nght = $ot_hr;
-												}
-												else
-												{
-													$ot_hr = intval($total_out_daily - $total_in_daily);
-													$hr_diff = intval($ot_hr/60);
-													$min_diff = intval($ot_hr%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													//echo $hr_diff.".".$hrs1."";
-													$ot_nght = $ot_hr;
-												} 
-										?>
-
-										<td <?php echo $ot_nght != 0 && $ot_nght >= 60 ? 'style="background-color:#87CEFA"' : ' ';?>
-										>
-											<?php
-												//COMPUTATION OF OT NIGHT !
-												if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$ot_nght = 0;
-														echo ' ';
-													}
-													elseif($total_out_daily >= $total_out_min && $emp->employee_number != 10195) 
-													{
-														$late_hr = intval($total_out_daily - $total_out_min);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_ot_night = $hr_diff.".".$min_diff;
-														$ot_nght = $late_hr;
-
-													}	
-													elseif($total_out_daily >= $total_casual_out && $emp->employee_number == 10195) 
-													{
-														$late_hr = intval($total_out_daily - $total_casual_out);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_ot_night = $hr_diff.".".$min_diff;
-														$ot_nght = $late_hr;
-
-													}
-													elseif($holiday_dates == $date_date_in)
-													{
-														$ot_hr = intval($total_out_daily - $total_in_daily);
-														$hr_diff = intval($ot_hr/60);
-														$min_diff = intval($ot_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$ot_nght = $ot_hr;
-													}
-													elseif($date_date_in != $date_date_out && $ot_hr_morning != 0)
-													{
-														$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
-														$explode_total_hrs = explode(".", $number_hr_daily);
-														$total_hrs = $explode_total_hrs[0];
-														$total_mins = $explode_total_hrs[1];
-														$total_hr = $explode_ot_morning_hr_min[0];
-														$total_min = $explode_ot_morning_hr_min[1];
-														
-														$total_in_and_out = $total_out_min - $total_in_min ;
-														$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
-														$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
-
-														$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
-														$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
-
-														$hr_ot_diff = intval($total_ot_hrs/60);
-														$min_ot_diff = intval($total_ot_hrs%60);
-														$hrs1 = sprintf("%02d", $min_ot_diff);
-														$total_ot_night = $hr_ot_diff.".".$hrs1."";
-														echo $total_ot_night;
-														$ot_nght = $total_ot_hrs;
-													}
-													else
-													{
-														echo 0 ;
-														$ot_nght = 0;
-													}
-												}	
-												elseif($week_date == 5)
-												{
-													if($total_in_daily == 0 && $total_out_daily == 0)
-													{
-														$ot_nght = 0;
-														echo ' ';
-													}
-													elseif($total_out_daily >= $total_friday_out_min && $emp->employee_number != 10195) 
-													{
-														$late_hr = intval($total_out_daily - $total_friday_out_min);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_ot_night = $hr_diff.".".$min_diff;
-														$ot_nght = $late_hr;
-													}	
-													elseif($total_out_daily >= $total_casual_friday_out && $emp->employee_number == 10195) 
-													{
-														$late_hr = intval($total_out_daily - $total_casual_friday_out);
-														$hr_diff = intval($late_hr/60);
-														$min_diff = intval($late_hr%60);
-														$hrs1 = sprintf("%02d", $min_diff);
-														echo $hr_diff.".".$hrs1."";
-														$number_ot_night = $hr_diff.".".$min_diff;
-														$ot_nght = $late_hr;
-													}	
-													elseif($date_date_in != $date_date_out && $ot_hr_morning == 0)
-													{
-														$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
-														$explode_total_hrs = explode(".", $number_hr_daily);
-														$total_hrs = $explode_total_hrs[0];
-														$total_mins = $explode_total_hrs[1];
-														$total_hr = $explode_ot_morning_hr_min[0];
-														$total_min = $explode_ot_morning_hr_min[1];
-														
-														$total_in_and_out = $total_friday_out_min - $total_in_min ;
-														$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
-														$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
-
-														$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
-														$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
-
-														$hr_ot_diff = intval($total_ot_hrs/60);
-														$min_ot_diff = intval($total_ot_hrs%60);
-														$hrs1 = sprintf("%02d", $min_ot_diff);
-														$total_ot_night = $hr_ot_diff.".".$hrs1."";
-														echo $total_ot_night;
-														$ot_nght = $total_ot_hrs;
-													}
-														elseif($date_date_in != $date_date_out && $ot_hr_morning != 0)
-													{
-														$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
-														$explode_total_hrs = explode(".", $number_hr_daily);
-														$total_hrs = $explode_total_hrs[0];
-														$total_mins = $explode_total_hrs[1];
-														$total_hr = $explode_ot_morning_hr_min[0];
-														$total_min = $explode_ot_morning_hr_min[1];
-														
-														$total_in_and_out = $total_friday_out_min - $total_in_min ;
-														$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
-														$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
-
-														$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
-														$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
-
-														$hr_ot_diff = intval($total_ot_hrs/60);
-														$min_ot_diff = intval($total_ot_hrs%60);
-														$hrs1 = sprintf("%02d", $min_ot_diff);
-														$total_ot_night = $hr_ot_diff.".".$hrs1."";
-														echo $total_ot_night;
-														$ot_nght = $total_ot_hrs;
-													}
-													else
-													{
-														echo 0 ;
-														$ot_nght = 0;
-													}
-												}
-												elseif($week_date == 6)
-												{
-													$ot_hr = intval($total_out_daily - $total_in_daily);
-													$hr_diff = intval($ot_hr/60);
-													$min_diff = intval($ot_hr%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$ot_nght = $ot_hr;
-												}
-												else
-												{
-													$ot_hr = intval($total_out_daily - $total_in_daily);
-													$hr_diff = intval($ot_hr/60);
-													$min_diff = intval($ot_hr%60);
-													$hrs1 = sprintf("%02d", $min_diff);
-													echo $hr_diff.".".$hrs1."";
-													$ot_nght = $ot_hr;
-												}
-											?>
-											<input type="hidden" name="ot_night[]" value="<?php echo $ot_nght; ?>">
-										</td>
-
-										<td>
-											<?php
 												//NIGHT DIFF
-												$set_night_diff_morning = '6:00';
-												$set_night_diff = '22:00';
-												$explode_night_diff_morning = explode(':', $set_night_diff_morning);
-												$explode_night_diff = explode(':', $set_night_diff);
-												$night_diff_morning = intval($explode_night_diff_morning[0]*60);
-												$night_diff= intval($explode_night_diff[0]*60);
-												$compute_night_diff =$total_out_daily - $night_diff;
-												$compute_night_diff_morning = $night_diff_morning - $total_in_daily;
+												$explode_night_diff = explode(":", $night_diff);
+												$night_diff_hr = $explode_night_diff[0]; 
+												$night_diff_min = $explode_night_diff[1]; 
+												$total_night_diff = intval($night_diff_hr*60) + $night_diff_min; // total night diff
 
-												if($total_in_daily == 0 && $total_out_daily == 0)
-												{
-													$nd = 0 ;
-													echo 0;
-												}
-												elseif($night_diff_morning < $total_in_daily && $total_out_daily < $night_diff)
-												{
-													$nd = 0 ;
-													echo 0;
-												}
-												elseif($night_diff_morning > $total_in_daily)	
-												{
-													$compute_night_diff_morning;
-													$hr_diff = intval($compute_night_diff_morning/60);
-													$min_diff = intval($compute_night_diff_morning%60);
+												// EXPLODE IN AND OUT 
+												$explode_in_office = explode(":", $in_office);
+												$explode_out_office = explode(":", $out_office);
+												$explode_friday_out_office = explode(":", $friday_out);
+												$explode_in_daily = explode(":", $date_in);
+												$explode_out_daily = explode(":", $date_out);
+												$time_in_hr_daily = $explode_in_daily[0];
+												$time_in_min_daily = $explode_in_daily[1];
+												$time_out_hr_daily = $explode_out_daily[0];
+												$time_out_min_daily = $explode_out_daily[1];
+												$time_in_hr = $explode_in_office[0];
+												$time_in_min = $explode_in_office[1];
+												$time_out_hr = $explode_out_office[0];
+												$time_out_min = $explode_out_office[1];
+												$time_friday_out_hr = $explode_friday_out_office[0];
+												$time_friday_out_min = $explode_friday_out_office[1];
 
-													if($min_diff > 30)
-													{
-														$nd = $hr_diff."."."30";
-														echo $hr_diff."."."30";
-													}
-													elseif($min_diff < 30)
-													{
-														$nd = $hr_diff;
-														echo $hr_diff;
-													}
-												}		
-												elseif($total_out_daily > $night_diff)	
-												{
-													$compute_night_diff;
-													$hr_diff = intval($compute_night_diff/60);
-													$min_diff = intval($compute_night_diff%60);
-													
-													if($min_diff > 30)
-													{
-														$nd = $hr_diff."."."30";
-														echo $hr_diff."."."30";
-													}
-													elseif($min_diff < 30)
-													{
-														$nd = $hr_diff;
-														echo $hr_diff;
-													}
-												}																					
+
+												// Convert IN AND OUT
+												$total_in_min = intval($time_in_hr*60) + $time_in_min; // DEFAULT IN
+												$total_in_min_grace = intval($time_in_hr*60) + $time_in_min + 15; // DEFAULT IN WITH GRACE PERIOD!
+												$total_out_min = intval($time_out_hr*60) + $time_out_min; // DEFAULT OUT
+												$total_friday_out_min = intval($time_friday_out_hr*60) + $time_friday_out_min; // DEFAULT OUT IN FRIDAY
+												$total_in_daily = intval($time_in_hr_daily*60) + $time_in_min_daily; // EMPLOYEE IN
+												$total_out_daily = intval($time_out_hr_daily*60) + $time_out_min_daily; // EMPLOYEE OUT
+
+												//COMPUTATION IN OFFICE IN AND OUT
+												$total_min_diff = intval($total_out_min - $total_in_min);
+												$hr_diff = intval($total_min_diff/60);
+												$min_diff = intval($total_min_diff%60);
+												
+
+												// IN AND OUT OF EMPLOYEE
+												$in = strtotime($emp->intime);
+												$out   = strtotime($emp->outtime);
+												$diff  = $out - $in;
+
+												//CONVERT OF IN AND OUT
+												$hours = floor($diff / (60 * 60));
+												$minutes = $diff - $hours * (60 * 60); 
+												$total_minutes = floor( $minutes / 60 );
+												
+												// COMPUTATION OF IN AND OUT
+												$total_number_of_hours = $hours.".".$total_minutes; //
+												$total_office_hours = $hr_diff.".".$min_diff; // 9:30 Fixed
+												$number_hr_daily = $total_number_of_hours; // TOTAL HOURS DAILY!
 											?>
-											<?php $total_nd += $nd ; ?>
-											<input type="hidden" name="nd[]" value="<?php echo $nd; ?>">
-										</td>
+											<tr>
+												<!-- DAYS -->	
+			    	 							<td>
+														<?php 
+															$data_w = $emp->date;
+															echo date('D', strtotime($emp->date));
+														?>
+													</td>
+			    	 						<!-- DATES -->	
+				    	 					<td>
+				    	 						<?php 
+				    	 							echo $emp->date;
+				    	 							$con_dates = date('w', strtotime($emp->date));
+				    	 							if($con_dates == '0')
+				    	 							{
+				    	 								$sunday_date =  1;
+				    	 								$total_sunday_date += $sunday_date;
+				    	 							}
+				    	 						?>
+				    	 						<input type="hidden" name="dates[]" value="<?php echo $emp->date; ?>">
+								    	 		<input type="hidden" name="con_dates[]" value="<?php echo $con_dates; ?>">
+				    	 					</td>
+				    	 					<!-- time in -->
+				    	 					<?php $start_halfday = 660; $end_halfday = 750; ?>
+				    	 					<td <?php echo $total_in_daily >=  $start_halfday && $week_date != 5 && $holiday_dates != $date_date_in ? 'style="background-color:#e74c3c"' : $total_in_daily ==  0 && $week_date != 6 && $week_date != 0 ? 'style="background-color:#e74c3c"' : $total_in_daily >=  $start_halfday && $week_date == 5 && $holiday_dates != $date_date_in ? 'style="background-color:#e74c3c"' : ' '; ?> >
+													<?php 
+														$in = explode(" ",$emp->intime);
+														echo $in[1];
+													?>
+													<input type="hidden" name="intime[]" value="<?php echo $emp->intime; ?>">
+												</td>
+												<!-- time out -->
+												<td <?php echo $total_out_daily <  $total_out_min && $week_date != 5 && $week_date != 6 && $week_date != 0 && $holiday_dates != $date_date_in ? 'style="background-color:#e74c3c"' : $total_out_daily ==  0 && $week_date != 6 && $week_date != 0 ? 'style="background-color:#ccc"' : $total_out_daily < $total_friday_out_min && $week_date == 5 && $holiday_dates != $date_date_in ? 'style="background-color:#e74c3c"'  : ' '; ?> >
+													<?php 
+														$out = explode(" ",$emp->outtime);
+														echo $out[1];
+													?>	
+													<input type="hidden" name="outtime[]" value="<?php echo $emp->outtime; ?>">
+												</td>
 
-										<td>
-											<?php if(isset($remarks)) : ?>
-							          <?php foreach($remarks as $remark) : ?>
-							          	<?php 
-							          		if($remark->date == $emp->date && $remark->remarks_employee_number == $emp->employee_number)
-							          		{
-							          			echo '<b><center>'. $remark->type_name .'</b></center>';
-							          		}
+												<td>	
+												<?php 
+												// DAILY HOURS
+
+												if($week_date >= 1 && $week_date <= 4)
+												{
+													if($date_date_in == $date_date_out && $total_in_daily == 0 && $total_out_daily == 0)
+													{
+														$dly_hrs = 0;
+														echo ' ';
+													}
+													elseif($total_in_min_grace >= $total_in_daily && $total_out_daily >= $total_out_min)
+													{
+														$total_min_diff = intval($total_out_min - $total_in_min - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}			
+													elseif($total_in_daily > $total_in_min_grace && $total_out_daily < $total_out_min)
+													{
+														$total_min_diff = intval($total_out_daily - $total_in_daily - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}
+													elseif($total_in_daily > $total_in_min_grace )
+													{
+														$total_min_diff = intval($total_out_min - $total_in_daily - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}
+													elseif($total_out_daily < $total_out_min)
+													{
+														$total_min_diff = intval($total_out_daily - $total_in_min - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}
+													elseif($total_in_daily >= $total_in_min_grace)
+													{
+														$total_min_diff = intval($total_out_min - $total_in_daily - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$min_diff."";
+														$dly_hrs = $total_min_diff;
+													}
+													elseif($total_in_daily <= $total_in_min_grace)
+													{
+														$total_min_diff = intval($total_out_min - $total_in_min - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}
+												}
+												elseif($week_date == 5)
+												{
+													if($date_date_in == $date_date_out && $total_in_daily == 0 && $total_out_daily == 0)
+													{
+														$dly_hrs = 0;
+														echo ' ';
+													}
+													elseif($date_date_in == $date_date_out && $total_in_min_grace >= $total_in_daily && $total_out_daily >= $total_friday_out_min)
+													{
+														$total_min_diff = intval($total_friday_out_min - $total_in_min - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+
+													}	
+													elseif($date_date_in == $date_date_out && $total_in_daily > $total_in_min_grace && $total_out_daily < $total_friday_out_min)
+													{
+														$total_min_diff = intval($total_out_daily - $total_in_daily - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}
+													elseif($date_date_in == $date_date_out && $total_in_daily > $total_in_min_grace )
+													{
+														$total_min_diff = intval($total_friday_out_min - $total_in_daily - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}
+													elseif($date_date_in == $date_date_out && $total_out_daily < $total_friday_out_min)
+													{
+														$total_min_diff = intval($total_out_daily - $total_in_min - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}
+													elseif($date_date_in != $date_date_out && $total_in_daily >= $total_in_min_grace)
+													{
+														$total_min_diff = intval($total_friday_out_min - $total_in_daily - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}
+													elseif($date_date_in != $date_date_out || $total_in_daily <= $total_in_min_grace)
+													{
+														$total_min_diff = intval($total_friday_out_min - $total_in_min - 60);
+														$hr_diff = intval($total_min_diff/60);
+														$min_diff = intval($total_min_diff%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$dly_hrs = $total_min_diff;
+													}
+												}
+												elseif($week_date == 6)
+												{
+													echo 'SATURDAY';
+													$dly_hrs = 540;
+												}
+												elseif($week_date == 0)
+												{
+													echo 'SUNDAY';
+													$dly_hrs = 0;
+												}
+												else
+												{
+													echo 0;
+													$dly_hrs = 0;
+												}
+
+												if($dly_hrs != 0)
+												{
+													$total_daily_hours += count($dly_hrs);
+												}
+
+												?>
+												
+												<input type="hidden" name="daily_hrs[]" value="<?php echo $dly_hrs; ?>">
+											</td>
+
+											<?php
+													//COMPUTATION OF HOURS LATE !
+													$halfday = 780;
+													if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$hr_lte1 = 0;
+															//echo ' ';
+														}
+														elseif($halfday <= $total_in_daily)
+														{
+															$late_hr = intval($total_in_daily - $halfday);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_of_late = $hr_diff.".".$min_diff;
+															$hr_lte1 = $late_hr;
+														}
+														elseif($start_halfday <= $total_in_daily)
+														{
+															//echo 0;
+															$hr_lte1 = 0;
+														}
+														elseif($holiday_dates == $date_date_in)
+														{
+															$hr_lte1 = 0;
+															//echo 0 ;
+														}
 														else
 														{
+															if($total_in_daily > $total_in_min_grace && $emp->employee_number != 10195)
+															{
+																$late_hr = intval($total_in_daily - $total_in_min);
+																$hr_diff = intval($late_hr/60);
+																$min_diff = intval($late_hr%60);
+																$hrs1 = sprintf("%02d", $min_diff);
+																//echo $hr_diff.".".$hrs1."";
+																$number_of_late = $hr_diff.".".$min_diff;
+																$hr_lte1 = $late_hr;
+															}
+															elseif($total_in_daily > $total_casual_in_min_grace && $emp->employee_number == 10195)
+															{
+																$late_hr = intval($total_in_daily - $total_casual_in);
+																$hr_diff = intval($late_hr/60);
+																$min_diff = intval($late_hr%60);
+																$hrs1 = sprintf("%02d", $min_diff);
+																//echo $hr_diff.".".$hrs1."";
+																$number_of_late = $hr_diff.".".$min_diff;
+																$hr_lte1 = $late_hr;
+															}
+															else
+															{
+																//echo 0;
+																$hr_lte1 = 0;
+															}
+														}
+													}	
+													elseif($week_date == 5)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$hr_lte1 = 0;
+															//echo ' ';
+														}
+														elseif($halfday <= $total_in_daily)
+														{
+															$late_hr = intval($total_in_daily - $halfday);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_of_late = $hr_diff.".".$min_diff;
+															$hr_lte1 = $late_hr;
+														}
+														elseif($start_halfday <= $total_in_daily)
+														{
+															//echo 0;
+															$hr_lte1 = 0;
+														}
+														elseif($holiday_dates == $date_date_in)
+														{
+															$hr_lte1 = 0;
+															//echo 0 ;
+														}
+														else
+														{
+															if($total_in_daily > $total_in_min_grace && $emp->employee_number != 10195)
+															{
+																$late_hr = intval($total_in_daily - $total_in_min);
+																$hr_diff = intval($late_hr/60);
+																$min_diff = intval($late_hr%60);
+																$hrs1 = sprintf("%02d", $min_diff);
+																//echo $hr_diff.".".$hrs1."";
+																$number_of_late = $hr_diff.".".$min_diff;
+																$hr_lte1 = $late_hr;
+															}
+															elseif($total_in_daily > $total_casual_in_min_grace && $emp->employee_number == 10195)
+															{
+																$late_hr = intval($total_in_daily - $total_casual_in);
+																$hr_diff = intval($late_hr/60);
+																$min_diff = intval($late_hr%60);
+																$hrs1 = sprintf("%02d", $min_diff);
+																//echo $hr_diff.".".$hrs1."";
+																$number_of_late = $hr_diff.".".$min_diff;
+																$hr_lte1 = $late_hr;
+															}
+															else
+															{
+																//echo 0;
+																$hr_lte1 = 0;
+															}
+														}
+														
+													}
+													else
+													{
+														//echo ' ';
+														$hr_lte1 = 0;
+													}
+												?>
+
+											<td <?php echo $hr_lte1 != 0 ? 'style="background-color:#e74c3c"' : ''; ?>>
+												<?php
+													//COMPUTATION OF HOURS LATE !
+													$halfday = 780;
+													if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$hr_lte = 0;
+															$ttl_late_dy = 0;
 															echo ' ';
+														}
+														elseif($halfday <= $total_in_daily)
+														{
+															$late_hr = intval($total_in_daily - $halfday);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_of_late = $hr_diff.".".$min_diff;
+															$hr_lte = $late_hr;
+															$ttl_late_dy = 1;
+														}
+														elseif($start_halfday <= $total_in_daily)
+														{
+															echo 0;
+															$hr_lte = 0;
+															$ttl_late_dy = 0;
+														}
+														elseif($holiday_dates == $date_date_in)
+														{
+															$hr_lte = 0;
+															$ttl_late_dy = 0;
+															echo 0 ;
+														}
+														else
+														{
+															if($total_in_daily > $total_in_min_grace && $emp->employee_number != 10195)
+															{
+																$late_hr = intval($total_in_daily - $total_in_min);
+																$hr_diff = intval($late_hr/60);
+																$min_diff = intval($late_hr%60);
+																$hrs1 = sprintf("%02d", $min_diff);
+																echo $hr_diff.".".$hrs1."";
+																$number_of_late = $hr_diff.".".$min_diff;
+																$hr_lte = $late_hr;
+																$ttl_late_dy = 1;
+															}
+															elseif($total_in_daily > $total_casual_in_min_grace && $emp->employee_number == 10195)
+															{
+																$late_hr = intval($total_in_daily - $total_casual_in);
+																$hr_diff = intval($late_hr/60);
+																$min_diff = intval($late_hr%60);
+																$hrs1 = sprintf("%02d", $min_diff);
+																echo $hr_diff.".".$hrs1."";
+																$number_of_late = $hr_diff.".".$min_diff;
+																$hr_lte = $late_hr;
+																$ttl_late_dy = 1;
+															}
+															else
+															{
+																echo 0;
+																$hr_lte = 0;
+																$ttl_late_dy = 0;
+															}
+														}
+													}	
+													elseif($week_date == 5)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$hr_lte = 0;
+															$ttl_late_dy = 0;
+															echo ' ';
+														}
+														elseif($halfday <= $total_in_daily)
+														{
+															$late_hr = intval($total_in_daily - $halfday);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_of_late = $hr_diff.".".$min_diff;
+															$hr_lte = $late_hr;
+															$ttl_late_dy = 1;
+														}
+														elseif($start_halfday <= $total_in_daily)
+														{
+															echo 0;
+															$hr_lte = 0;
+															$ttl_late_dy = 0;
+														}
+														elseif($holiday_dates == $date_date_in)
+														{
+															$hr_lte = 0;
+															$ttl_late_dy = 0;
+															echo 0 ;
+														}
+														else
+														{
+															if($total_in_daily > $total_in_min_grace && $emp->employee_number != 10195)
+															{
+																$late_hr = intval($total_in_daily - $total_in_min);
+																$hr_diff = intval($late_hr/60);
+																$min_diff = intval($late_hr%60);
+																$hrs1 = sprintf("%02d", $min_diff);
+																echo $hr_diff.".".$hrs1."";
+																$number_of_late = $hr_diff.".".$min_diff;
+																$hr_lte = $late_hr;
+																$ttl_late_dy = 1;
+															}
+															elseif($total_in_daily > $total_casual_in_min_grace && $emp->employee_number == 10195)
+															{
+																$late_hr = intval($total_in_daily - $total_casual_in);
+																$hr_diff = intval($late_hr/60);
+																$min_diff = intval($late_hr%60);
+																$hrs1 = sprintf("%02d", $min_diff);
+																echo $hr_diff.".".$hrs1."";
+																$number_of_late = $hr_diff.".".$min_diff;
+																$hr_lte = $late_hr;
+																$ttl_late_dy = 1;
+															}
+															else
+															{
+																echo 0;
+																$hr_lte = 0;
+																$ttl_late_dy = 0;
+															}
+														}
+														
+													}
+													else
+													{
+														echo ' ';
+														$hr_lte = 0;
+														$ttl_late_dy = 0;
+													}
+													$total_hr_lte += $hr_lte;
+												?>
+												<input type="hidden" name="hours_late[]" value="<?php echo $hr_lte; ?>">
+												<input type="hidden" name="total_late[]" value="<?php echo $ttl_late_dy; ?>">
+											</td>
+											<?php $ud_time = ' '; ?>
+											<?php
+												//COMPUTATION OF UNDERTIME ! 
+												$halfday_ut = 720;
+												$halfday_in = 780;
+												if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
+												{
+													if($total_in_daily == 0 && $total_out_daily == 0)
+													{
+														$ud_time = 0;
+														//echo ' ';
+													}
+													elseif($total_out_daily < $halfday_ut)
+													{
+														$undertime_hr = intval($halfday_ut - $total_out_daily);
+														$hr_diff = intval($undertime_hr/60);
+														$min_diff = intval($undertime_hr%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$number_of_undertime = $hr_diff.".".$min_diff;
+														$ud_time = $undertime_hr;
+													}
+													elseif($total_out_min <= $total_out_daily)
+													{
+														//echo 0;
+														$ud_time = 0;
+													}
+													elseif($holiday_dates == $date_date_in)
+													{
+														//echo 0 ;
+														$ud_time = 0;
+													}
+													else
+													{
+														if($total_out_daily > $halfday_in && $emp->employee_number != 10195)
+														{
+															$undertime_hr = intval($total_out_min - $total_out_daily);
+															$hr_diff = intval($undertime_hr/60);
+															$min_diff = intval($undertime_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_of_undertime = $hr_diff.".".$min_diff;
+															$ud_time = $undertime_hr;
+														}
+														elseif($total_out_daily > $halfday_in && $emp->employee_number == 10195)
+														{
+															$undertime_hr = intval($total_casual_out - $total_out_daily);
+															$hr_diff = intval($undertime_hr/60);
+															$min_diff = intval($undertime_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_of_undertime = $hr_diff.".".$min_diff;
+															$ud_time = $undertime_hr;
+														}
+													}
+												}
+												elseif($week_date == 5)
+												{
+													if($total_in_daily == 0 && $total_out_daily == 0)
+													{
+														$ud_time = 0;
+														//echo ' ';
+													}
+													elseif($total_friday_out_min <= $total_out_daily)
+													{
+														//echo 0;
+														$ud_time = 0;
+													}
+													elseif($holiday_dates == $date_date_in)
+													{
+														//echo 0 ; 
+														$ud_time = 0;
+													}
+													else
+													{
+														if($halfday_in < $total_out_daily && $emp->employee_number != 10195)
+														{
+															$undertime_hr = intval($total_friday_out_min - $total_out_daily);
+															$hr_diff = intval($undertime_hr/60);
+															$min_diff = intval($undertime_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_of_undertime = $hr_diff.".".$min_diff; 
+															$ud_time = $undertime_hr;
+														}
+														elseif($total_out_daily > $halfday_in && $emp->employee_number == 10195)
+														{
+															$undertime_hr = intval($total_casual_friday_out - $total_out_daily);
+															$hr_diff = intval($undertime_hr/60);
+															$min_diff = intval($undertime_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_of_undertime = $hr_diff.".".$min_diff;
+															$ud_time = $undertime_hr;
+														}
+													}
+												}
+												else
+												{
+													//echo ' ';
+													$ud_time = 0;
+												}
+													 
+												?>
+
+											<td <?php echo $ud_time != 0 ? 'style="background-color:#e74c3c"' : ''; ?>
+											>
+												<?php
+												//COMPUTATION OF UNDERTIME ! 
+												$halfday_ut = 720;
+												$halfday_in = 780; 
+												if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
+												{
+													if($total_in_daily == 0 && $total_out_daily == 0)
+													{
+														$ud_time = 0;
+														echo ' ';
+													}
+													elseif($total_out_daily < $halfday_ut)
+													{
+														$undertime_hr = intval($halfday_ut - $total_out_daily);
+														$hr_diff = intval($undertime_hr/60);
+														$min_diff = intval($undertime_hr%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$number_of_undertime = $hr_diff.".".$min_diff;
+														$ud_time = $undertime_hr;
+													}
+													elseif($total_out_min <= $total_out_daily)
+													{
+														echo 0;
+														$ud_time = 0;
+													}
+													elseif($holiday_dates == $date_date_in)
+													{
+														echo 0 ;
+														$ud_time = 0;
+													}
+													else
+													{
+														if($total_out_daily > $halfday_in && $emp->employee_number != 10195)
+														{
+															$undertime_hr = intval($total_out_min - $total_out_daily);
+															$hr_diff = intval($undertime_hr/60);
+															$min_diff = intval($undertime_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_of_undertime = $hr_diff.".".$min_diff;
+															$ud_time = $undertime_hr;
+														}
+														elseif($total_out_daily > $halfday_in && $emp->employee_number == 10195)
+														{
+															$undertime_hr = intval($total_casual_out - $total_out_daily);
+															$hr_diff = intval($undertime_hr/60);
+															$min_diff = intval($undertime_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_of_undertime = $hr_diff.".".$min_diff;
+															$ud_time = $undertime_hr;
+														}
+													}
+												}
+												elseif($week_date == 5)
+												{
+													if($total_in_daily == 0 && $total_out_daily == 0)
+													{
+														$ud_time = 0;
+														echo ' ';
+													}
+													elseif($total_friday_out_min <= $total_out_daily)
+													{
+														echo 0;
+														$ud_time = 0;
+													}
+													elseif($holiday_dates == $date_date_in)
+													{
+														echo 0 ; 
+														$ud_time = 0;
+													}
+													else
+													{
+														if($halfday_in < $total_out_daily && $emp->employee_number != 10195)
+														{
+															$undertime_hr = intval($total_friday_out_min - $total_out_daily);
+															$hr_diff = intval($undertime_hr/60);
+															$min_diff = intval($undertime_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_of_undertime = $hr_diff.".".$min_diff; 
+															$ud_time = $undertime_hr;
+														}
+														elseif($total_out_daily > $halfday_in && $emp->employee_number == 10195)
+														{
+															$undertime_hr = intval($total_casual_friday_out - $total_out_daily);
+															$hr_diff = intval($undertime_hr/60);
+															$min_diff = intval($undertime_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_of_undertime = $hr_diff.".".$min_diff;
+															$ud_time = $undertime_hr;
+														}
+													}
+												}
+												else
+												{
+													echo ' ';
+													$ud_time = 0;
+												}
+												 $total_undrtme += $ud_time; 
+													 
+												?>
+												<input type="hidden" name="undertime[]" value="<?php echo $ud_time; ?>">
+											</td>
+
+											<?php 
+												if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
+												{
+													if($total_in_daily == 0 && $total_out_daily == 0)
+													{
+														$ot_mrning = 0;
+														//echo ' ';
+													}
+													elseif($total_in_daily <= $total_in_min)
+													{
+														$ot_hr_morning = intval($total_in_min - $total_in_daily);
+														$hr_diff = intval($ot_hr_morning/60);
+														$min_diff = intval($ot_hr_morning%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														//echo $hr_diff.".".$hrs1."";
+														$number_ot_morning = $hr_diff.".".$min_diff;
+														$ot_mrning = $ot_hr_morning;
+													} 
+													else
+													{
+														//echo 0;
+														$ot_hr_morning = 0;
+														$ot_mrning = 0;
+													}
+												}
+												elseif($week_date == 5)
+												{
+													if($total_in_daily == 0 && $total_out_daily == 0)
+													{
+														$ot_mrning = 0;
+														//echo ' ';
+													}
+													elseif($total_in_daily <= $total_in_min)
+													{
+														$ot_hr_morning = intval($total_in_min - $total_in_daily);
+														$hr_diff = intval($ot_hr_morning/60);
+														$min_diff = intval($ot_hr_morning%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														//echo $hr_diff.".".$hrs1."";
+														$number_ot_morning = $hr_diff.".".$min_diff;
+														$ot_mrning = $ot_hr_morning;
+													} 
+													else
+													{
+														//echo 0;
+														$ot_hr_morning = 0;
+														$ot_mrning = 0;
+													}
+												}
+												else
+												{
+													//echo ' ';
+													$ot_hr_morning = 0;
+													$ot_mrning = 0;
+												}
+											?>
+
+											<td <?php echo $ot_mrning != 0 && $ot_mrning > 60 ? 'style="background-color:#87CEFA"' : ''; ?>
+											>
+												<?php
+													//COMPUTATION OF OT MORNING !
+													if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$ot_mrning = 0;
+															echo ' ';
+														}
+														elseif($total_in_daily <= $total_in_min)
+														{
+															$ot_hr_morning = intval($total_in_min - $total_in_daily);
+															$hr_diff = intval($ot_hr_morning/60);
+															$min_diff = intval($ot_hr_morning%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_ot_morning = $hr_diff.".".$min_diff;
+															$ot_mrning = $ot_hr_morning;
+														} 
+														else
+														{
+															echo 0;
+															$ot_hr_morning = 0;
+															$ot_mrning = 0;
+														}
+													}
+													elseif($week_date == 5)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$ot_mrning = 0;
+															echo ' ';
+														}
+														elseif($total_in_daily <= $total_in_min)
+														{
+															$ot_hr_morning = intval($total_in_min - $total_in_daily);
+															$hr_diff = intval($ot_hr_morning/60);
+															$min_diff = intval($ot_hr_morning%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_ot_morning = $hr_diff.".".$min_diff;
+															$ot_mrning = $ot_hr_morning;
+														} 
+														else
+														{
+															echo 0;
+															$ot_hr_morning = 0;
+															$ot_mrning = 0;
+														}
+													}
+													else
+													{
+														echo ' ';
+														$ot_hr_morning = 0;
+														$ot_mrning = 0;
+													}
+													$total_ot_mnng += $ot_mrning;
+												?>
+												<input type="hidden" name="ot_morning[]" value="<?php echo $ot_mrning; ?>">
+											</td>
+
+											<?php
+												if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$ot_nght = 0;
+															//echo ' ';
+														}
+														elseif($total_out_daily >= $total_out_min && $emp->employee_number != 10195) 
+														{
+															$late_hr = intval($total_out_daily - $total_out_min);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_ot_night = $hr_diff.".".$min_diff;
+															$ot_nght = $late_hr;
+
 														}	
-													?>
-							          <?php endforeach; ?>
-							        <?php endif; ?>  	
-										</td>
-									</tr>
-								<?php endforeach; ?>	
-		          <?php endif; ?>	
-		          	<tr>
-		          		<td></td>
-		          		<td></td>
-		          		<td></td>
-		          		<td></td>
-		          		<td></td>
-		          		<td>	
-		          			<b>
-		          				<?php 
-			          				$hours = floor($total_hr_lte / 60);
-												$minutes = $total_hr_lte % 60;
-												echo $hours. '.' .$minutes;
-		          				?>
-		          			</b>
-		          		</td>
-		          		<td>
-		          			<b>
-		          				<?php 
-		          					$hours = floor($total_undrtme / 60);
-												$minutes = $total_undrtme % 60;
-												echo $hours. '.' .$minutes;
-		          				?>
-		          			</b>	
-		          		</td>
-		          		<td></td>
-		          		<td></td>
-		          		<td>
-		          			<b>
-		          				<?php
-			          			 echo number_format($total_nd, 2); 
-			          			?>
-		          			</b>
-		          		
-		          		</td>
-		          		<td></td>
-		          	</tr>
+														elseif($total_out_daily >= $total_casual_out && $emp->employee_number == 10195) 
+														{
+															$late_hr = intval($total_out_daily - $total_casual_out);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_ot_night = $hr_diff.".".$min_diff;
+															$ot_nght = $late_hr;
+
+														}	
+														elseif($holiday_dates == $date_date_in)
+														{
+															$ot_hr = intval($total_out_daily - $total_in_daily);
+															$hr_diff = intval($ot_hr/60);
+															$min_diff = intval($ot_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$ot_nght = $ot_hr;
+														}
+														elseif($date_date_in != $date_date_out && $ot_hr_morning != 0)
+														{
+															$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
+															$explode_total_hrs = explode(".", $number_hr_daily);
+															$total_hrs = $explode_total_hrs[0];
+															$total_mins = $explode_total_hrs[1];
+															$total_hr = $explode_ot_morning_hr_min[0];
+															$total_min = $explode_ot_morning_hr_min[1];
+															
+															$total_in_and_out = $total_out_min - $total_in_min ;
+															$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
+															$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
+
+															$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
+															$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
+
+															$hr_ot_diff = intval($total_ot_hrs/60);
+															$min_ot_diff = intval($total_ot_hrs%60);
+															$hrs1 = sprintf("%02d", $min_ot_diff);
+															$total_ot_night = $hr_ot_diff.".".$hrs1."";
+															//echo $total_ot_night;
+															$ot_nght = $total_ot_hrs;
+														}
+														else
+														{
+															//echo 0 ;
+															$ot_nght = 0;
+														}
+													}	
+													elseif($week_date == 5)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$ot_nght = 0;
+															//echo ' ';
+														}
+														elseif($total_out_daily >= $total_friday_out_min && $emp->employee_number != 10195) 
+														{
+															$late_hr = intval($total_out_daily - $total_friday_out_min);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_ot_night = $hr_diff.".".$min_diff;
+															$ot_nght = $late_hr;
+														}	
+														elseif($total_out_daily >= $total_casual_friday_out && $emp->employee_number == 10195) 
+														{
+															$late_hr = intval($total_out_daily - $total_casual_friday_out);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															//echo $hr_diff.".".$hrs1."";
+															$number_ot_night = $hr_diff.".".$min_diff;
+															$ot_nght = $late_hr;
+														}	
+														elseif($date_date_in != $date_date_out && $ot_hr_morning == 0)
+														{
+															$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
+															$explode_total_hrs = explode(".", $number_hr_daily);
+															$total_hrs = $explode_total_hrs[0];
+															$total_mins = $explode_total_hrs[1];
+															$total_hr = $explode_ot_morning_hr_min[0];
+															$total_min = $explode_ot_morning_hr_min[1];
+															
+															$total_in_and_out = $total_friday_out_min - $total_in_min ;
+															$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
+															$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
+
+															$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
+															$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
+
+															$hr_ot_diff = intval($total_ot_hrs/60);
+															$min_ot_diff = intval($total_ot_hrs%60);
+															$hrs1 = sprintf("%02d", $min_ot_diff);
+															$total_ot_night = $hr_ot_diff.".".$hrs1."";
+															//echo $total_ot_night;
+															$ot_nght = $total_ot_hrs;
+														}
+															elseif($date_date_in != $date_date_out && $ot_hr_morning != 0)
+														{
+															$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
+															$explode_total_hrs = explode(".", $number_hr_daily);
+															$total_hrs = $explode_total_hrs[0];
+															$total_mins = $explode_total_hrs[1];
+															$total_hr = $explode_ot_morning_hr_min[0];
+															$total_min = $explode_ot_morning_hr_min[1];
+															
+															$total_in_and_out = $total_friday_out_min - $total_in_min ;
+															$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
+															$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
+
+															$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
+															$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
+
+															$hr_ot_diff = intval($total_ot_hrs/60);
+															$min_ot_diff = intval($total_ot_hrs%60);
+															$hrs1 = sprintf("%02d", $min_ot_diff);
+															$total_ot_night = $hr_ot_diff.".".$hrs1."";
+															//echo $total_ot_night;
+															$ot_nght = $total_ot_hrs;
+														}
+														else
+														{
+															//echo 0 ;
+															$ot_nght = 0;
+														}
+													}
+													elseif($week_date == 6)
+													{
+														$ot_hr = intval($total_out_daily - $total_in_daily);
+														$hr_diff = intval($ot_hr/60);
+														$min_diff = intval($ot_hr%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														//echo $hr_diff.".".$hrs1."";
+														$ot_nght = $ot_hr;
+													}
+													else
+													{
+														$ot_hr = intval($total_out_daily - $total_in_daily);
+														$hr_diff = intval($ot_hr/60);
+														$min_diff = intval($ot_hr%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														//echo $hr_diff.".".$hrs1."";
+														$ot_nght = $ot_hr;
+													} 
+											?>
+
+											<td <?php echo $ot_nght != 0 && $ot_nght >= 60 ? 'style="background-color:#87CEFA"' : ' ';?>
+											>
+												<?php
+													//COMPUTATION OF OT NIGHT !
+													if($week_date == 1 || $week_date == 2 || $week_date == 3 || $week_date == 4)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$ot_nght = 0;
+															echo ' ';
+														}
+														elseif($total_out_daily >= $total_out_min && $emp->employee_number != 10195) 
+														{
+															$late_hr = intval($total_out_daily - $total_out_min);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_ot_night = $hr_diff.".".$min_diff;
+															$ot_nght = $late_hr;
+
+														}	
+														elseif($total_out_daily >= $total_casual_out && $emp->employee_number == 10195) 
+														{
+															$late_hr = intval($total_out_daily - $total_casual_out);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_ot_night = $hr_diff.".".$min_diff;
+															$ot_nght = $late_hr;
+
+														}
+														elseif($holiday_dates == $date_date_in)
+														{
+															$ot_hr = intval($total_out_daily - $total_in_daily);
+															$hr_diff = intval($ot_hr/60);
+															$min_diff = intval($ot_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$ot_nght = $ot_hr;
+														}
+														elseif($date_date_in != $date_date_out && $ot_hr_morning != 0)
+														{
+															$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
+															$explode_total_hrs = explode(".", $number_hr_daily);
+															$total_hrs = $explode_total_hrs[0];
+															$total_mins = $explode_total_hrs[1];
+															$total_hr = $explode_ot_morning_hr_min[0];
+															$total_min = $explode_ot_morning_hr_min[1];
+															
+															$total_in_and_out = $total_out_min - $total_in_min ;
+															$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
+															$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
+
+															$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
+															$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
+
+															$hr_ot_diff = intval($total_ot_hrs/60);
+															$min_ot_diff = intval($total_ot_hrs%60);
+															$hrs1 = sprintf("%02d", $min_ot_diff);
+															$total_ot_night = $hr_ot_diff.".".$hrs1."";
+															echo $total_ot_night;
+															$ot_nght = $total_ot_hrs;
+														}
+														else
+														{
+															echo 0 ;
+															$ot_nght = 0;
+														}
+													}	
+													elseif($week_date == 5)
+													{
+														if($total_in_daily == 0 && $total_out_daily == 0)
+														{
+															$ot_nght = 0;
+															echo ' ';
+														}
+														elseif($total_out_daily >= $total_friday_out_min && $emp->employee_number != 10195) 
+														{
+															$late_hr = intval($total_out_daily - $total_friday_out_min);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_ot_night = $hr_diff.".".$min_diff;
+															$ot_nght = $late_hr;
+														}	
+														elseif($total_out_daily >= $total_casual_friday_out && $emp->employee_number == 10195) 
+														{
+															$late_hr = intval($total_out_daily - $total_casual_friday_out);
+															$hr_diff = intval($late_hr/60);
+															$min_diff = intval($late_hr%60);
+															$hrs1 = sprintf("%02d", $min_diff);
+															echo $hr_diff.".".$hrs1."";
+															$number_ot_night = $hr_diff.".".$min_diff;
+															$ot_nght = $late_hr;
+														}	
+														elseif($date_date_in != $date_date_out && $ot_hr_morning == 0)
+														{
+															$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
+															$explode_total_hrs = explode(".", $number_hr_daily);
+															$total_hrs = $explode_total_hrs[0];
+															$total_mins = $explode_total_hrs[1];
+															$total_hr = $explode_ot_morning_hr_min[0];
+															$total_min = $explode_ot_morning_hr_min[1];
+															
+															$total_in_and_out = $total_friday_out_min - $total_in_min ;
+															$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
+															$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
+
+															$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
+															$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
+
+															$hr_ot_diff = intval($total_ot_hrs/60);
+															$min_ot_diff = intval($total_ot_hrs%60);
+															$hrs1 = sprintf("%02d", $min_ot_diff);
+															$total_ot_night = $hr_ot_diff.".".$hrs1."";
+															echo $total_ot_night;
+															$ot_nght = $total_ot_hrs;
+														}
+															elseif($date_date_in != $date_date_out && $ot_hr_morning != 0)
+														{
+															$explode_ot_morning_hr_min = explode(".", $number_ot_morning);
+															$explode_total_hrs = explode(".", $number_hr_daily);
+															$total_hrs = $explode_total_hrs[0];
+															$total_mins = $explode_total_hrs[1];
+															$total_hr = $explode_ot_morning_hr_min[0];
+															$total_min = $explode_ot_morning_hr_min[1];
+															
+															$total_in_and_out = $total_friday_out_min - $total_in_min ;
+															$total_ot_morning_min = intval($total_hr*60) + $total_min; // OT MORNING
+															$total_daily_min = intval($total_hrs*60) + $total_mins; // TOTAL HRS CONVERT TO MINS
+
+															$compute_total_in_and_ot_morning = $total_in_and_out + $total_ot_morning_min;
+															$total_ot_hrs = $total_daily_min - $compute_total_in_and_ot_morning;
+
+															$hr_ot_diff = intval($total_ot_hrs/60);
+															$min_ot_diff = intval($total_ot_hrs%60);
+															$hrs1 = sprintf("%02d", $min_ot_diff);
+															$total_ot_night = $hr_ot_diff.".".$hrs1."";
+															echo $total_ot_night;
+															$ot_nght = $total_ot_hrs;
+														}
+														else
+														{
+															echo 0 ;
+															$ot_nght = 0;
+														}
+													}
+													elseif($week_date == 6)
+													{
+														$ot_hr = intval($total_out_daily - $total_in_daily);
+														$hr_diff = intval($ot_hr/60);
+														$min_diff = intval($ot_hr%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$ot_nght = $ot_hr;
+													}
+													else
+													{
+														$ot_hr = intval($total_out_daily - $total_in_daily);
+														$hr_diff = intval($ot_hr/60);
+														$min_diff = intval($ot_hr%60);
+														$hrs1 = sprintf("%02d", $min_diff);
+														echo $hr_diff.".".$hrs1."";
+														$ot_nght = $ot_hr;
+													}
+												?>
+												<input type="hidden" name="ot_night[]" value="<?php echo $ot_nght; ?>">
+											</td>
+
+											<td>
+												<?php
+													//NIGHT DIFF
+													$set_night_diff_morning = '6:00';
+													$set_night_diff = '22:00';
+													$explode_night_diff_morning = explode(':', $set_night_diff_morning);
+													$explode_night_diff = explode(':', $set_night_diff);
+													$night_diff_morning = intval($explode_night_diff_morning[0]*60);
+													$night_diff= intval($explode_night_diff[0]*60);
+													$compute_night_diff =$total_out_daily - $night_diff;
+													$compute_night_diff_morning = $night_diff_morning - $total_in_daily;
+
+													if($total_in_daily == 0 && $total_out_daily == 0)
+													{
+														$nd = 0 ;
+														echo 0;
+													}
+													elseif($night_diff_morning < $total_in_daily && $total_out_daily < $night_diff)
+													{
+														$nd = 0 ;
+														echo 0;
+													}
+													elseif($night_diff_morning > $total_in_daily && $total_out_daily < $night_diff)	
+													{
+														$compute_night_diff_morning;
+														$hr_diff = intval($compute_night_diff_morning/60);
+														$min_diff = intval($compute_night_diff_morning%60);
+
+														if($min_diff >= 30)
+														{
+															$nd = $hr_diff."."."30";
+															echo $hr_diff."."."30";
+														}
+														elseif($min_diff < 30)
+														{
+															$nd = $hr_diff;
+															echo $hr_diff;
+														}
+													}	
+													elseif($total_out_daily > $night_diff && $night_diff_morning < $total_in_daily)	
+													{
+														$compute_night_diff;
+														$hr_diff = intval($compute_night_diff/60);
+														$min_diff = intval($compute_night_diff%60);
+														
+														if($min_diff >= 30)
+														{
+															$nd = $hr_diff."."."30";
+															echo $hr_diff."."."30";
+														}
+														elseif($min_diff < 30)
+														{
+															$nd = $hr_diff;
+															echo $hr_diff;
+														}
+													}
+													elseif($total_out_daily > $night_diff && $night_diff_morning > $total_in_daily)
+													{
+														$totl_mght_diff = $compute_night_diff_morning + $compute_night_diff;
+														$hr_diff = intval($totl_mght_diff/60);
+														$min_diff = intval($totl_mght_diff%60);
+														if($min_diff >= 30)
+														{
+															$nd = $hr_diff."."."30";
+															echo $hr_diff."."."30";
+														}
+														elseif($min_diff < 30)
+														{
+															$nd = $hr_diff;
+															echo $hr_diff;
+														}
+													}
+												?>
+												<?php $total_nd += $nd ; ?>
+												<input type="hidden" name="nd[]" value="<?php echo $nd; ?>">
+											</td>
+
+											<td>
+												<?php if(isset($remarks)) : ?>
+								          <?php foreach($remarks as $remark) : ?>
+								          	<?php 
+								          		if($remark->date == $emp->date && $remark->remarks_employee_number == $emp->employee_number)
+								          		{
+								          			echo '<b><center>'. $remark->type_name .'</b></center>';
+								          		}
+															else
+															{
+																echo ' ';
+															}	
+														?>
+								          <?php endforeach; ?>
+								        <?php endif; ?>  	
+											</td>
+										</tr>
+									<?php endforeach; ?>	
+			          <?php endif; ?>	
+			        </form>  
+	          	<tr>
+	          		<td></td>
+	          		<td></td>
+	          		<td></td>
+	          		<td></td>
+	          		<td></td>
+	          		<td>	
+	          			<b>
+	          				<?php 
+		          				$hours = floor($total_hr_lte / 60);
+											$minutes = $total_hr_lte % 60;
+											$mins = sprintf("%02d", $minutes);
+											echo $hours. '.' .$mins;
+	          				?>
+	          			</b>
+	          		</td>
+	          		<td>
+	          			<b>
+	          				<?php 
+	          					$hours = floor($total_undrtme / 60);
+											$minutes = $total_undrtme % 60;
+											$mins = sprintf("%02d", $minutes);
+											echo $hours. '.' .$mins;
+	          				?>
+	          			</b>	
+	          		</td>
+	          		<td></td>
+	          		<td></td>
+	          		<td>
+	          			<b>
+	          				<?php
+		          			 echo number_format($total_nd, 2); 
+		          			?>
+	          			</b>
+	          		
+	          		</td>
+	          		<td></td>
+	          	</tr>
 		    	</table>	
 	    	 	<hr>
 	    	 	<?php $total_dp_sh_ab = 0; $total_dp_sh_cwwut = 0; $total_dp_sh_wcp = 0;?>
@@ -1414,7 +1473,7 @@
 					  							<?php 
 					  							if($employee_type->type == 'DP' && $holiday->type == 'SH') 
 					  							{
-					  								$dp_sh_ab = 8;
+					  								$dp_sh_ab = 1;
 					  								$dp_sh_cwwut = 60;
 					  								$total_dp_sh_ab +=$dp_sh_ab;
 					  								$total_dp_sh_cwwut +=$dp_sh_cwwut;
@@ -1622,7 +1681,7 @@
 	                    			$total_ot_hrs_in_saturday = intval($total_out_daily - $total_in_daily);
 	                    			$hf_sat = $total_ot_hrs_in_saturday;
 	                    			//echo $hf_sat;
-
+	                    			$mon_fri_in = $total_ot_hrs_in_saturday;
 	                    			$sat_in = $total_in_daily;
 		                    	}
 	                		}	
@@ -1772,7 +1831,8 @@
 			          				<?php 
 				          				$hours = floor($total_hr_lte / 60);
 													$minutes = $total_hr_lte % 60;
-													echo $hours. '.' .$minutes;
+													$mins = sprintf("%02d", $minutes);
+													echo $hours. '.' .$mins;
 			          				?>
 			          			</b>
 				          	</td>
@@ -1783,7 +1843,8 @@
 			          				<?php 
 				          				$hours = floor($total_undrtme / 60);
 													$minutes = $total_undrtme % 60;
-													echo $hours. '.' .$minutes;
+													$mins = sprintf("%02d", $minutes);
+													echo $hours. '.' .$mins;
 			          				?>
 			          			</b>
 				          	</td>
@@ -1810,16 +1871,14 @@
 				          		</b>
 				          	</td>
 
-				          	<!-- SICK LEAVE -->	
+				          	<!-- ABSENCES -->	
 				          	<td>
 				          		<b>
 				          			<?php $hr_mins_ab = 0; ?>
 				          			<?php if($ab_total) : ?>
 					          			<?php foreach($ab_total as $ab_total) : ?>
 					          				<?php 
-					          					$hours = floor($ab_total->total_slvl / 60);
-															$minutes = $ab_total->total_slvl % 60;
-															$hr_mins_ab = $hours. '.' .$minutes; 
+															$hr_mins_ab = $ab_total->total_slvl; 
 					          				?>
 					          			<?php endforeach; ?>	
 					          		<?php endif;  ?>
@@ -1886,3 +1945,18 @@
 		  </div>
 	  </div>
 </div>
+
+<script type="text/javascript" src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#processTime').click(function() {
+			var a = confirm("Process Employee Attendance?");
+			if (a == true) {
+				$('#timeForm').attr('action', 'process_employee_time');
+				$('#timeForm').submit();
+			} else {
+				return false;
+			} 
+		});
+	});	
+</script>

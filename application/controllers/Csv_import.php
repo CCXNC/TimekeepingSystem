@@ -42,7 +42,7 @@ class Csv_import extends CI_Controller {
 	public function attendance_process()
 	{
 		$this->csv_import_model->insert_csv_attendance();
-		//redirect('attendance/index_attendance');
+		redirect('attendance/index_attendance');
 	}
  
 	function import() 

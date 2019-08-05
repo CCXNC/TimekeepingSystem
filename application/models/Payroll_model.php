@@ -1102,7 +1102,7 @@ class Payroll_model extends CI_Model {
 			'date_start' 					 => $start_date,
 			'date_end'             => $end_date,
 			'type'                 => $explode_type[0],
-			'type_name'            => $explode_type[1],
+			'type_name'            => $explode_type[1]. ' ' .'(' . $hf . ')' ,
 			'status'               => 'FOR APPROVAL'
 		);
 
@@ -1112,7 +1112,7 @@ class Payroll_model extends CI_Model {
 		{
 			// 30 mins for cwwut
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1120,7 +1120,7 @@ class Payroll_model extends CI_Model {
 		elseif($hf == 'HFAM' && $explode_type[0] == 'AB' && $date == '5')
 		{
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5 
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1129,7 +1129,7 @@ class Payroll_model extends CI_Model {
 		{
 			// 30 mins for cwwut
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1137,7 +1137,7 @@ class Payroll_model extends CI_Model {
 		elseif($hf == 'HFPM' && $explode_type[0] == 'AB' && $date == '5')
 		{
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1146,7 +1146,7 @@ class Payroll_model extends CI_Model {
 		{
 			// 30 mins for cwwut
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1175,11 +1175,35 @@ class Payroll_model extends CI_Model {
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
 		} 
+		elseif($hf == 'HF' && $explode_type[0] == 'SL')
+		{
+			$data = array( 
+				'slvl_num' => .5
+			); 
+			$this->db->where('id', $id); 
+			$this->db->update('tbl_slvl', $data); 
+		} 
+		elseif($hf == 'HFAM' && $explode_type[0] == 'SL')
+		{
+			$data = array( 
+				'slvl_num' => .5
+			); 
+			$this->db->where('id', $id); 
+			$this->db->update('tbl_slvl', $data); 
+		} 
+		elseif($hf == 'HFPM' && $explode_type[0] == 'SL')
+		{
+			$data = array( 
+				'slvl_num' => .5
+			); 
+			$this->db->where('id', $id); 
+			$this->db->update('tbl_slvl', $data); 
+		} 
 		elseif($hf == 'WD' && $explode_type[0] == 'AB' && $date != '5')
 		{
 			// 1 hr for cwwut
 			$data = array( 
-				'slvl_num' => 480
+				'slvl_num' => 1
 			); 
 			$this->db->where('id', $id);
 			$this->db->update('tbl_slvl', $data); 
@@ -1187,7 +1211,7 @@ class Payroll_model extends CI_Model {
 		elseif($hf == 'WD' && $explode_type[0] == 'AB' && $date == '5')
 		{
 			$data = array( 
-				'slvl_num' => 480
+				'slvl_num' => 1
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1263,7 +1287,7 @@ class Payroll_model extends CI_Model {
 		{
 			// 30 mins for cwwut
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1271,7 +1295,7 @@ class Payroll_model extends CI_Model {
 		elseif($hf == 'HFAM' && $explode_type[0] == 'AB' && $date == '5')
 		{
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1280,7 +1304,7 @@ class Payroll_model extends CI_Model {
 		{
 			// 30 mins for cwwut
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5 
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1288,7 +1312,7 @@ class Payroll_model extends CI_Model {
 		elseif($hf == 'HFPM' && $explode_type[0] == 'AB' && $date == '5')
 		{
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1297,7 +1321,7 @@ class Payroll_model extends CI_Model {
 		{
 			// 30 mins for cwwut
 			$data = array( 
-				'slvl_num' => 240 
+				'slvl_num' => .5
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1330,7 +1354,7 @@ class Payroll_model extends CI_Model {
 		{
 			// 1 hr for cwwut
 			$data = array( 
-				'slvl_num' => 480
+				'slvl_num' => 1
 			); 
 			$this->db->where('id', $id);
 			$this->db->update('tbl_slvl', $data); 
@@ -1338,7 +1362,7 @@ class Payroll_model extends CI_Model {
 		elseif($hf == 'WD' && $explode_type[0] == 'AB' && $date == '5')
 		{
 			$data = array( 
-				'slvl_num' => 480
+				'slvl_num' => 1
 			); 
 			$this->db->where('id', $id); 
 			$this->db->update('tbl_slvl', $data); 
@@ -1601,7 +1625,7 @@ class Payroll_model extends CI_Model {
 		$trans = $this->db->trans_complete();
 
 		return $trans;
-	}
+	} 
 
 	public function process_time_keeping()
 	{
@@ -1616,7 +1640,7 @@ class Payroll_model extends CI_Model {
 		$hours_late = $this->input->post('hours_late');
 		$undertime 	= $this->input->post('undertime');
 		$ot_morning = $this->input->post('ot_morning');
-		$ot_night   = $this->input->post('ot_night');
+		$ot_night   = $this->input->post('ot_night'); 
 		$night_diff = $this->input->post('nd');
 		$hfpm_dates =	$this->input->post('hfpm_dates');
 		$hfam_dates =	$this->input->post('hfam_dates');
@@ -1649,6 +1673,51 @@ class Payroll_model extends CI_Model {
 		$trans = $this->db->trans_complete();
 
 		return $trans;
+	}
+
+	public function process_employee_timekeeping()
+	{
+		$this->db->trans_start();
+
+		$dates 			= $this->input->post('dates');
+		$con_dates  = $this->input->post('con_dates');
+		$intime 		= $this->input->post('intime');
+		$outtime 		= $this->input->post('outtime');
+		$daily_hrs 	= $this->input->post('daily_hrs');
+		$hours_late = $this->input->post('hours_late');
+		$num_late 	= $this->input->post('total_late');
+		$a = 0;
+
+		foreach($this->input->post('employee_number') as $emp_no)
+		{
+			$this->db->where('employee_number', $emp_no);
+			$this->db->where('dates', $dates[$a]);
+
+			$in_att = $this->db->get('tbl_report_generation');
+
+			if($in_att->num_rows() == 0)
+			{
+				$data = array(
+					'employee_number'  => $emp_no,
+					'dates'            => $dates[$a],
+					'convert_days'     => $con_dates[$a],
+					'time_in'          => $intime[$a],
+					'time_out'         => $outtime[$a],
+					'daily_hours'      => $daily_hrs[$a],
+					'tardiness'        => $hours_late[$a],
+					'num_of_tardiness' => $num_late[$a]
+	 			);
+
+	 			$this->db->insert('tbl_report_generation', $data);
+			}
+
+ 			$a++;
+		}
+
+		$trans = $this->db->trans_complete();
+
+		return $trans;
+
 	}
 	
 
@@ -1770,6 +1839,7 @@ class Payroll_model extends CI_Model {
 	public function get_summary_time()
 	{
 		$this->db->select("tbl_employees.emp_no as emp_no, tbl_employees.employee_number as employee_number, CONCAT(tbl_employees.last_name, ' ', tbl_employees.first_name , ' ', tbl_employees.middle_name) AS name");
+		$this->db->where('is_active', '1');
 		$this->db->order_by('tbl_employees.last_name', 'ASC');
 		$this->db->from('tbl_employees');
 		$query = $this->db->get();
@@ -2181,12 +2251,13 @@ class Payroll_model extends CI_Model {
 		$query = $this->db->get();
 
 		return $query->result();
-	}
+	} 
 
 	public function get_employees()
 	{
 		$this->db->select("CONCAT(tbl_employees.last_name, ', ', tbl_employees.first_name , ' ', tbl_employees.middle_name) AS name,tbl_employees.id as id, tbl_employees.employee_number as employee_number");
 		$this->db->order_by('tbl_employees.last_name', 'ASC');
+		$this->db->where('is_active', '1');
 		$this->db->from('tbl_employees');
 		$query = $this->db->get();
 
@@ -2546,6 +2617,101 @@ class Payroll_model extends CI_Model {
 		$this->db->where('tbl_cwwut.date >=', $start_date);
 		$this->db->where('tbl_cwwut.date <=', $end_date);
 		$this->db->where('tbl_cwwut.status', 'PROCESSED');
+		$query = $this->db->get();
+
+		return $query->result();
+	}
+
+	public function add_undertime()
+	{
+		$this->db->trans_start();
+
+		$name = $this->input->post('name');
+		$date_ut = $this->input->post('date_ut');
+		$time_out = $this->input->post('time_out');
+		$reason = $this->input->post('reason');
+
+		$explode_name = explode("|", $name);
+
+		$data = array(
+			'employee_number' => $explode_name[1],
+			'name'            => $explode_name[0],
+			'date_ut'         => $date_ut,
+			'time_out'        => $time_out,
+			'reason'          => $reason,
+			'encode_by'				=> $this->session->userdata('username'),
+			'status'          => 'FOR APPROVAL',
+			'encode_date'     => date('Y-m-d')
+		);
+
+		$this->db->insert('tbl_undertime', $data);
+
+		$this->db->select('id, employee_number, name, date_ut, time_out');
+		$this->db->order_by('id', 'DESC');
+		$query = $this->db->get('tbl_undertime');	
+
+		$id = $query->row()->id;
+		$employee_number = $query->row()->employee_number;
+		$name = $query->row()->name;
+		$date_ut = $query->row()->date_ut;
+		$time_out = $query->row()->time_out;
+		$w_date = date('w', strtotime($date_ut));
+
+		$data = array(
+			'for_id'  				=> $id,
+			'employee_number' => $employee_number,
+			'name'            => $name,
+			'type'						=> 'UT',
+			'type_name'       => 'UNDERTIME',
+			'date'            => $date_ut,
+			'status'          => 'FOR APPROVAL'
+		);
+
+		$this->db->insert('tbl_remarks', $data);
+
+		if($w_date != 5)
+		{
+			$mon_thru = 1050;
+			$explode_time = explode(':', $time_out);
+			$hr = $explode_time[0] * 60;
+			$hr_mins = $hr + $explode_time[1];
+			$total_ut = $mon_thru - $hr_mins;
+
+			$data = array(
+				'ut_no' => $total_ut
+			);
+
+			$this->db->where('id', $id);
+			$this->db->update('tbl_undertime', $data);
+		}
+		elseif($w_date == 5)
+		{
+			$fri = 990;
+			$explode_time = explode(':', $time_out);
+			$hr = $explode_time[0] * 60;
+			$hr_mins = $hr + $explode_time[1];
+			$total_ut = $fri - $hr_mins;
+
+			$data = array(
+				'ut_no' => $total_ut
+			);
+
+			$this->db->where('id', $id);
+			$this->db->update('tbl_undertime', $data);
+		}
+
+		$trans = $this->db->trans_complete();
+
+		return $trans;
+	}
+
+	public function get_undertime($start_date, $end_date)
+	{
+		$this->db->select('id, employee_number, name, date_ut, ut_no,time_out, reason, status');
+		$this->db->where('date_ut >=', $start_date);
+		$this->db->where('date_ut <=', $end_date);
+		$this->db->from('tbl_undertime');
+
 		$query = $this->db->get();
 
 		return $query->result();
